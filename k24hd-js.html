@@ -37,7 +37,7 @@ async function fetchJsonViaProxy(url) {
 
 // ดึง player iframe และปุ่มตัวเล่นหลัก/สำรองจาก API
 async function getPlayer(postId) {
-  const apiUrl = `https://kubhds.com/wp-admin/admin-ajax.php?action=mix_get_player&post_id=${postId}`;
+  const apiUrl = `https://kubhd24.net/wp-admin/admin-ajax.php?action=mix_get_player&post_id=${postId}`;
   const json = await fetchJsonViaProxy(apiUrl);
   if (!json?.success) return [];
 
@@ -132,7 +132,7 @@ let currentSourcePref = "main";
 
 async function main() {
   const params = new URLSearchParams(window.location.search);
-  const ids = params.get("ids")?.split(",") || ["missing-crown-prince"];
+  const ids = params.get("ids")?.split(",") || ["fireworks-2026"];
   currentSourcePref = params.get("source") || currentSourcePref;
   const output = document.getElementById("output");
   const sourceControls = document.getElementById("source-controls");
@@ -140,7 +140,7 @@ async function main() {
   sourceControls.innerHTML = "";
 
   for (const id of ids) {
-    const seriesUrl = `https://kubhds.com/series/${id}/`;
+    const seriesUrl = `https://kubhd24.net/series/${id}/`;
     const html = await fetchViaProxy(seriesUrl);
     if (!html) {
       output.innerHTML += `<p>โหลดข้อมูลไม่สำเร็จสำหรับ ${id}</p>`;
