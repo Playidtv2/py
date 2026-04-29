@@ -132,7 +132,7 @@ let currentSourcePref = "main";
 
 async function main() {
   const params = new URLSearchParams(window.location.search);
-  const ids = params.get("ids")?.split(",") || ["game-of-succession"];
+  const ids = params.get("ids")?.split(",") || ["perfect-10-liners"];
   currentSourcePref = params.get("source") || currentSourcePref;
   const output = document.getElementById("output");
   const sourceControls = document.getElementById("source-controls");
