@@ -2,49 +2,50 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>ระบบดึงข้อมูลจากเว็บไซต์ดูซีรีย์  Pro - Multi-Page & Full Episodes</title>
+    <title>Kub24HD 2026 Movie Parser</title>
     <style>
-        :root { --gold: #ffeb3b; --bg: #0f0f0f; --card: #1e1e1e; --blue: #2196F3; }
-        body { font-family: 'Tahoma', sans-serif; background: var(--bg); color: #fff; padding: 20px; }
+        :root { --accent: #e91e63; --bg: #0a0a0a; --card: #161616; --text: #eee; }
+        body { font-family: 'Tahoma', sans-serif; background: var(--bg); color: var(--text); padding: 20px; }
         .container { max-width: 1200px; margin: 0 auto; }
         
-        /* ส่วนควบคุมหน้า */
-        .control-panel { background: #222; padding: 20px; border-radius: 12px; margin-bottom: 25px; border-top: 4px solid var(--blue); }
+        .control-panel { background: #1e1e1e; padding: 25px; border-radius: 15px; margin-bottom: 30px; border-bottom: 4px solid var(--accent); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .input-group { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
-        input { background: #333; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 6px; width: 80px; text-align: center; }
+        input { background: #2a2a2a; border: 1px solid #444; color: #fff; padding: 12px; border-radius: 8px; width: 80px; text-align: center; font-weight: bold; }
         
-        .status-box { background: #1a1a1a; padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 5px solid var(--gold); }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
+        .status-box { background: #000; padding: 15px; border-radius: 8px; margin-top: 20px; border-left: 5px solid var(--accent); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
         
-        .card { background: var(--card); border-radius: 15px; overflow: hidden; border: 1px solid #333; transition: 0.3s; }
-        .card img { width: 100%; height: 220px; object-fit: cover; }
+        .card { background: var(--card); border-radius: 12px; overflow: hidden; border: 1px solid #333; transition: 0.3s; position: relative; }
+        .card:hover { transform: translateY(-5px); border-color: var(--accent); }
+        .card img { width: 100%; height: 380px; object-image: cover; }
         .card-body { padding: 15px; }
-        .card-title { font-size: 16px; font-weight: bold; color: var(--gold); margin-bottom: 8px; }
+        .card-title { font-size: 15px; font-weight: bold; color: #fff; margin-bottom: 12px; height: 40px; overflow: hidden; line-height: 1.4; }
         
-        button.start-btn { background: var(--blue); color: white; padding: 10px 25px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        button.view-btn { background: #444; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; width: 100%; margin-top: 10px; }
+        button.start-btn { background: var(--accent); color: white; padding: 12px 30px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+        button.view-btn { background: #333; color: #fff; border: 1px solid #444; padding: 10px; border-radius: 6px; cursor: pointer; width: 100%; transition: 0.2s; }
+        button.view-btn:hover { background: var(--accent); border-color: var(--accent); }
         
-        pre { background: #000; color: #00ff41; padding: 10px; font-size: 11px; overflow-x: auto; max-height: 200px; display: none; border-radius: 5px; }
-        .badge { background: var(--blue); padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-bottom: 5px; display: inline-block; }
+        pre { background: #000; color: #00ff41; padding: 12px; font-size: 11px; overflow-x: auto; max-height: 180px; display: none; border-radius: 6px; margin-top: 10px; border: 1px solid #222; }
+        .badge-page { position: absolute; top: 10px; left: 10px; background: rgba(233, 30, 99, 0.9); color: white; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: bold; z-index: 10; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1 style="text-align:center; color: var(--gold);">สคริปต์ ดึงข้อมูลจาก API จากเว็บที่กำหนด  Multi-Page Parser</h1>
+    <h1 style="text-align:center; color: var(--accent); margin-bottom: 30px;">🎬 Kub24HD Movie 2026 Parser</h1>
     
     <div class="control-panel">
         <div class="input-group">
-            <label>เริ่มจากหน้า:</label>
+            <label>เริ่มต้นหน้า:</label>
             <input type="number" id="startPage" value="1" min="1">
-            <label>ถึงหน้า:</label>
+            <label>สิ้นสุดหน้า:</label>
             <input type="number" id="endPage" value="1" min="1">
-            <button class="start-btn" onclick="startHarvesting()">🚀 เริ่มดึงข้อมูล</button>
+            <button class="start-btn" onclick="startMovieHarvest()">🚀 ดึงข้อมูลหนัง</button>
         </div>
         
         <div class="status-box">
-            <div id="loader">📍 พร้อมสำหรับการดึงข้อมูล</div>
-            <div id="stats" style="color: #888; font-size: 13px; margin-top: 5px;"></div>
+            <div id="loader" style="font-weight: bold; color: var(--accent);">📡 พร้อมเชื่อมต่อ...</div>
+            <div id="stats" style="color: #888; font-size: 13px; margin-top: 5px;">กรุณาระบุหน้าและกดปุ่มเพื่อเริ่ม</div>
         </div>
     </div>
 
@@ -53,7 +54,7 @@
 
 <script>
 const PROXY = '/api/proxy-k24hd?url=';
-const BASE_CAT = 'https://kubhd24.net/category/%E0%B8%94%E0%B8%B9%E0%B8%AB%E0%B8%99%E0%B8%B1%E0%B8%87%E0%B8%AD%E0%B8%AD%E0%B8%99%E0%B9%84%E0%B8%A5%E0%B8%99%E0%B9%8C-2026//';
+const MOVIE_CAT = 'https://kubhd24.net/category/%E0%B8%94%E0%B8%B9%E0%B8%AB%E0%B8%99%E0%B8%B1%E0%B8%87%E0%B8%AD%E0%B8%AD%E0%B8%99%E0%B9%84%E0%B8%A5%E0%B8%99%E0%B9%8C-2026/';
 
 async function request(url, isJson = false) {
     try {
@@ -63,7 +64,8 @@ async function request(url, isJson = false) {
     } catch (e) { return null; }
 }
 
-async function getStream(postId) {
+// ดึงลิงก์หนังโดยตรง (Movie มักจะมีปุ่มเดียว)
+async function getMovieStream(postId) {
     const json = await request(`https://kubhd24.net/wp-admin/admin-ajax.php?action=mix_get_player&post_id=${postId}`, true);
     if (!json?.success) return null;
     const match = json.player.match(/data-src="([^"]+)"/);
@@ -71,82 +73,84 @@ async function getStream(postId) {
     return `https://media.vdohls.com/${match[1].split('/').pop()}/playlist.m3u8`;
 }
 
-async function parseSeries(id) {
-    const html = await request(`https://kubhd24.net/movie/${id}/`);
+async function parseMovieDetail(movieUrl) {
+    const html = await request(movieUrl);
     if (!html) return null;
     const doc = new DOMParser().parseFromString(html, "text/html");
-    const title = doc.querySelector("h1")?.textContent.trim() || id;
+    const title = doc.querySelector("h1")?.textContent.trim() || "ไม่ทราบชื่อ";
     const poster = doc.querySelector("img.wp-post-image")?.getAttribute("data-src") || doc.querySelector("img.wp-post-image")?.src;
-    const epButtons = doc.querySelectorAll("#eplist button.ep");
     
-    let episodes = [];
-    for (const btn of epButtons) {
-        const url = await getStream(btn.id);
-        if (url) episodes.push({ title: btn.textContent.trim(), url });
-    }
-    return { title, poster, episodes };
+    // ในหน้าหนัง ปุ่มตัวเล่นมักจะมี ID อยู่ที่ปุ่มเล่นหลัก หรือปุ่มที่มีคลาส .source-select-btn / .ep (ถ้ามี)
+    // สำหรับหนัง มักจะหา Post ID จากปุ่ม .ep หรือ script ในหน้า
+    const playBtn = doc.querySelector("button.ep, .player-option button");
+    if (!playBtn) return null;
+
+    const streamUrl = await getMovieStream(playBtn.id);
+    return { title, poster, streamUrl };
 }
 
-async function startHarvesting() {
+async function startMovieHarvest() {
     const startPage = parseInt(document.getElementById("startPage").value);
     const endPage = parseInt(document.getElementById("endPage").value);
     const loader = document.getElementById("loader");
     const output = document.getElementById("output");
     const stats = document.getElementById("stats");
 
-    output.innerHTML = ""; // ล้างค่าเก่า
-    let totalSeriesFound = 0;
+    output.innerHTML = ""; 
+    let moviesFound = 0;
 
     for (let p = startPage; p <= endPage; p++) {
-        const pageUrl = p === 1 ? BASE_CAT : `${BASE_CAT}page/${p}/`;
+        const pageUrl = p === 1 ? MOVIE_CAT : `${MOVIE_CAT}page/${p}/`;
         loader.textContent = `🔍 กำลังสแกนหน้าหมวดหมู่ที่ ${p}...`;
         
         const catHtml = await request(pageUrl);
         if (!catHtml) continue;
 
-        const regex = /href="https:\/\/kubhd24\.net\/movie\/([^"\/]+)\//g;
-        const ids = Array.from(new Set([...catHtml.matchAll(regex)].map(m => m[1]))).filter(i => i !== 'movie');
+        const doc = new DOMParser().parseFromString(catHtml, "text/html");
+        // หาลิงก์หนังในหน้าหมวดหมู่ (ปกติจะเป็น <a> รอบรูปหรือชื่อเรื่อง)
+        const links = Array.from(doc.querySelectorAll('a'))
+                           .map(a => a.href)
+                           .filter(href => href && href.includes('https://kubhd24.net/') && !href.includes('/category/') && !href.includes('/series/'));
         
-        totalSeriesFound += ids.length;
-        stats.textContent = `กำลังจัดการหน้าที่ ${p} (พบใหม่ ${ids.length} เรื่อง / รวมสะสม ${totalSeriesFound} เรื่อง)`;
+        // ลบลิงก์ซ้ำ
+        const movieUrls = [...new Set(links)];
+        
+        stats.textContent = `พบหน้าที่ ${p}: ${movieUrls.length} รายการ | กำลังดึงข้อมูล...`;
 
-        for (let i = 0; i < ids.length; i++) {
-            loader.textContent = `⏳ หน้า ${p} | เรื่องที่ ${i+1}/${ids.length}: ${ids[i]}`;
+        for (let i = 0; i < movieUrls.length; i++) {
+            loader.textContent = `⏳ หน้า ${p} | กำลังโหลดรายการที่ ${i+1}/${movieUrls.length}`;
             
-            const data = await parseSeries(ids[i]);
-            if (data && data.episodes.length > 0) {
-                renderCard(data, p);
+            const movieData = await parseMovieDetail(movieUrls[i]);
+            if (movieData && movieData.streamUrl) {
+                moviesFound++;
+                renderMovieCard(movieData, p);
             }
         }
     }
-    loader.textContent = `✅ ดึงข้อมูลสำเร็จ! รวมทั้งหมด ${totalSeriesFound} เรื่อง จากหน้า ${startPage}-${endPage}`;
+    loader.textContent = `✅ สำเร็จ! ดึงข้อมูลหนังปี 2026 ได้ทั้งหมด ${moviesFound} เรื่อง`;
 }
 
-function renderCard(data, pageNum) {
-    let m3u = "#EXTM3U\n";
-    data.episodes.forEach(ep => {
-        m3u += `#EXTINF:-1 tvg-logo="${data.poster}" group-title="${data.title}", ${data.title} - ${ep.title}\n${ep.url}\n`;
-    });
+function renderMovieCard(data, pageNum) {
+    const m3u = `#EXTM3U\n#EXTINF:-1 tvg-logo="${data.poster}" group-title="Movies 2026", ${data.title}\n${data.streamUrl}`;
 
     const card = document.createElement("div");
     card.className = "card";
     card.innerHTML = `
-        <img src="${data.poster}">
+        <span class="badge-page">P. ${pageNum}</span>
+        <img src="${data.poster}" loading="lazy">
         <div class="card-body">
-            <span class="badge">หน้า ${pageNum}</span>
             <div class="card-title">${data.title}</div>
-            <div style="font-size:12px; color:#aaa; margin-bottom:10px;">จำนวน ${data.episodes.length} ตอน</div>
-            <button class="view-btn" onclick="toggleM3U(this)">📂 แสดง M3U Playlist</button>
+            <button class="view-btn" onclick="togglePre(this)">📂 รับลิงก์ M3U8</button>
             <pre>${m3u}</pre>
         </div>
     `;
     document.getElementById("output").appendChild(card);
 }
 
-function toggleM3U(btn) {
+function togglePre(btn) {
     const pre = btn.nextElementSibling;
     pre.style.display = (pre.style.display === 'block') ? 'none' : 'block';
-    btn.textContent = (pre.style.display === 'block') ? '✖ ปิด' : '📂 แสดง M3U Playlist';
+    btn.textContent = (pre.style.display === 'block') ? '✖ ปิดรหัส' : '📂 รับลิงก์ M3U8';
 }
 </script>
 </body>
