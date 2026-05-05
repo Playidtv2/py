@@ -92,6 +92,76 @@
   </div>
 
 <script>
+// --- ฟังก์ชันช่วยเหลือ (Utility Functions) ---
+
+// 1. แยกฟังก์ชันสร้าง M3U ออกมาข้างนอกให้ชัดเจน
+function generateM3U(seriesData) {
+  let m3u = "#EXTM3U\n";
+  const logo = seriesData.info?.poster || "";
+  const title = seriesData.name || "ซีรี่ย์";
+
+  seriesData.seasons.forEach(s => {
+    const seasonNum = s.season;
+    s.episodes.forEach(ep => {
+      const epNum = ep.episode;
+      if (ep.video) {
+        const sFormatted = String(seasonNum).padStart(2, "0");
+        const eFormatted = String(epNum).padStart(2, "0");
+        
+        // ใส่ Metadata สำหรับ Player เช่น TiviMate / OTT Navigator
+        m3u += `#EXTINF:-1 type="series" group-title="${title}" tvg-logo="${logo}" tvg-season="${seasonNum}" tvg-episode="${epNum}", ${title} S${sFormatted} E${eFormatted}\n`;
+        m3u += `${ep.video}\n`;
+      }
+    });
+  });
+  return m3u;
+}
+
+// --- ส่วนทำงานหลัก (Main Logic) ---
+
+// ... (คงฟังก์ชัน checkSubtitleExists, extractAudioTracks, processEpisode, fetchSeriesById ไว้ตามเดิม) ...
+
+document.getElementById("fetchBtn").addEventListener("click", async () => {
+  const id = parseInt(document.getElementById("showId").value, 10);
+  const output = document.getElementById("output");
+  
+  if (isNaN(id)) {
+    output.innerHTML = "❌ กรุณากรอก ID เป็นตัวเลข";
+    return;
+  }
+
+  output.innerHTML = "⏳ กำลังโหลดและวิเคราะห์ข้อมูล...";
+  
+  try {
+    const data = await fetchSeriesById(id);
+    
+    if (data.error) {
+      output.innerHTML = data.error;
+      return;
+    }
+
+    // สร้างข้อมูล M3U จาก Data ที่ได้
+    const m3uContent = generateM3U(data);
+
+    // แสดงผล
+    output.innerHTML = `
+      <h3>1. ข้อมูล JSON</h3>
+      <pre>${JSON.stringify(data, null, 2)}</pre>
+      <hr>
+      <h3>2. ข้อมูล M3U Playlist</h3>
+      <button onclick="copyToClipboard(\`${m3uContent.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`)">คัดลอก M3U</button>
+      <pre>${m3uContent}</pre>
+    `;
+  } catch (err) {
+    output.innerHTML = "❌ เกิดข้อผิดพลาด: " + err.message;
+  }
+});
+
+// ฟังก์ชันเสริมสำหรับคัดลอกข้อมูล
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).then(() => alert("คัดลอกแล้ว!"));
+}
+  
 const API_URL = "https://api.doo-nang.com/graphql";
 let currentSeriesData = null;
 const hls = new Hls();
