@@ -1,196 +1,148 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <title>Kub24HD Category Parser</title>
-  <style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1a1a1a; color: #eee; padding: 20px; }
-    .container { max-width: 1000px; margin: 0 auto; }
-    pre { background: #000; color: #0f0; padding: 15px; border-radius: 8px; overflow-x: auto; font-size: 12px; border: 1px solid #333; }
-    .series-card { background: #2d2d2d; border-radius: 8px; padding: 20px; margin-bottom: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-    .poster { max-width: 180px; border-radius: 4px; float: left; margin-right: 20px; }
-    .content-box { overflow: hidden; }
-    .controls { margin: 20px 0; background: #333; padding: 15px; border-radius: 8px; }
-    button { cursor: pointer; padding: 8px 16px; border: none; border-radius: 4px; font-weight: bold; transition: 0.3s; margin: 5px; }
-    button.season { background: #ff9800; color: #000; }
-    button.source { background: #2196F3; color: #fff; }
-    button:hover { opacity: 0.8; transform: translateY(-1px); }
-    .clearfix::after { content: ""; clear: both; display: table; }
-    h1 { color: #ffeb3b; border-bottom: 2px solid #ffeb3b; padding-bottom: 10px; }
-    .status { color: #ffeb3b; font-style: italic; }
-  </style>
+    <meta charset="UTF-8">
+    <title>Kub24HD Full Playlist Parser</title>
+    <style>
+        body { font-family: 'Tahoma', sans-serif; background: #121212; color: #fff; padding: 20px; }
+        .container { max-width: 1100px; margin: 0 auto; }
+        .status-box { background: #333; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid #ffeb3b; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+        .card { background: #1e1e1e; border-radius: 10px; overflow: hidden; border: 1px solid #333; transition: 0.3s; }
+        .card:hover { transform: scale(1.02); border-color: #ffeb3b; }
+        .card img { width: 100%; height: 300px; object-fit: cover; }
+        .card-body { padding: 15px; }
+        .card-title { font-size: 16px; font-weight: bold; margin-bottom: 10px; height: 40px; overflow: hidden; }
+        button { background: #ffeb3b; color: #000; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; }
+        pre { background: #000; color: #0f0; padding: 10px; font-size: 11px; overflow-x: auto; max-height: 150px; }
+        .m3u-area { display: none; margin-top: 10px; }
+    </style>
 </head>
 <body>
 
 <div class="container">
-  <h1>Kub24HD Category Parser</h1>
-  <div class="status" id="status-text">กำลังดึงข้อมูลจากหมวดหมู่...</div>
-  
-  <div class="controls" id="category-info">
-    <strong>Category:</strong> พากย์ไทย (Thai Dubbed Series)
-  </div>
-  
-  <div class="controls" id="season-controls"></div>
-  <div class="controls" id="source-controls"></div>
-  
-  <div id="output"></div>
+    <h1>Kub24HD Category Parser</h1>
+    
+    <div class="status-box">
+        <div id="loader">⏳ กำลังเตรียมการ...</div>
+        <div id="stats" style="font-size: 14px; margin-top: 5px; color: #aaa;"></div>
+    </div>
+
+    <div id="output" class="grid"></div>
 </div>
 
 <script>
-// --- Configuration & Helpers ---
 const CONFIG = {
-  categoryUrl: 'https://kubhd24.net/series/where-is-my-15-minutes-2025/',
-  proxyApi: '/api/proxy-k24hd?url='
+    categoryUrl: 'https://kubhd24.net/category/thai-dubbed-series/',
+    proxy: '/api/proxy-k24hd?url='
 };
 
-async function fetchViaProxy(url) {
-  const res = await fetch(CONFIG.proxyApi + encodeURIComponent(url));
-  return res.ok ? await res.text() : null;
+// ฟังก์ชันดึง HTML ผ่าน Proxy
+async function getHTML(url) {
+    try {
+        const res = await fetch(CONFIG.proxy + encodeURIComponent(url));
+        if (!res.ok) return null;
+        return await res.text();
+    } catch (e) { return null; }
 }
 
-async function fetchJsonViaProxy(url) {
-  const res = await fetch(CONFIG.proxyApi + encodeURIComponent(url));
-  return res.ok ? await res.json() : null;
-}
-
-// --- Scraper Functions ---
-
-// 1. ฟังก์ชันดึงรายการ ID ซีรีส์จากหน้า Category
-async function fetchSeriesIdsFromCategory() {
-  const html = await fetchViaProxy(CONFIG.categoryUrl);
-  if (!html) return [];
-  
-  const doc = new DOMParser().parseFromString(html, "text/html");
-  // หา link ในหน้า category (สมมติว่าเป็นโครงสร้างมาตรฐานของ WP/KubHD)
-  const links = doc.querySelectorAll(".post-column a, .archive-content a"); 
-  const ids = new Set();
-  
-  links.forEach(link => {
-    const href = link.getAttribute("href");
-    if (href && href.includes("/series/")) {
-      const id = href.split("/series/")[1].replace(/\//g, "");
-      if (id) ids.add(id);
-    }
-  });
-  return Array.from(ids);
-}
-
-async function getPlayer(postId) {
-  const apiUrl = `https://kubhd24.net/wp-admin/admin-ajax.php?action=mix_get_player&post_id=${postId}`;
-  const json = await fetchJsonViaProxy(apiUrl);
-  if (!json?.success) return [];
-  const doc = new DOMParser().parseFromString(json.player, "text/html");
-  const buttons = doc.querySelectorAll("button.source-select-btn");
-  let sources = [];
-  buttons.forEach(btn => {
-    const src = btn.getAttribute("data-src");
-    const label = btn.textContent.trim();
-    if (src) sources.push({ src, label });
-  });
-  return sources;
-}
-
-function convertEmbedToM3U8(embedUrl) {
-  try {
-    const url = new URL(embedUrl);
-    const videoId = url.pathname.split("/").pop();
-    return `https://media.vdohls.com/${videoId}/playlist.m3u8`;
-  } catch { return null; }
-}
-
-// --- Generator Functions ---
-function generateM3U(seriesData) {
-  let m3u = "#EXTM3U\n";
-  const logo = seriesData.poster?.src || "";
-  for (const ep of seriesData.episodes) {
-    const link = ep.m3u8List[0] || "";
-    if (link) {
-      m3u += `#EXTINF:-1 tvg-logo="${logo}" group-title="${seriesData.title}", ${seriesData.title} ตอนที่ ${ep.number}\n`;
-      m3u += link + "\n";
-    }
-  }
-  return m3u;
-}
-
-// --- Main Logic ---
-let currentSourcePref = "main";
-
-async function processSeries(id) {
-  const seriesUrl = `https://kubhd24.net/series/${id}/`;
-  const html = await fetchViaProxy(seriesUrl);
-  if (!html) return null;
-
-  const doc = new DOMParser().parseFromString(html, "text/html");
-  const title = doc.querySelector("h1")?.textContent.trim() || id;
-  const img = doc.querySelector("img.wp-post-image");
-  const poster = img ? { src: img.getAttribute("data-src") || img.src, alt: img.alt } : {};
-  const synopsis = doc.querySelector(".entry-content p")?.textContent.trim() || "";
-
-  // ดึงตอนที่ 1 มาเช็ค source
-  const firstEpBtn = doc.querySelector("button.ep");
-  if (!firstEpBtn) return null;
-
-  const sources = await getPlayer(firstEpBtn.id);
-  const epButtons = doc.querySelectorAll("#eplist button.ep"); // ดึงทุกตอน (Simplify สำหรับตย.)
-  
-  let episodes = [];
-  let idx = 1;
-  for (const btn of Array.from(epButtons).slice(0, 5)) { // จำกัด 5 ตอนเพื่อความเร็วในการ Test
-    const s = await getPlayer(btn.id);
-    let chosen = s.find(src => currentSourcePref === "backup" ? src.label.includes("สำรอง") : src.label.includes("หลัก")) || s[0];
-    episodes.push({
-      number: idx++,
-      m3u8List: chosen ? [convertEmbedToM3U8(chosen.src)] : []
-    });
-  }
-
-  return { id, title, poster, synopsis, episodes };
-}
-
-async function start() {
-  const status = document.getElementById("status-text");
-  const output = document.getElementById("output");
-  
-  // 1. ดึงรายการ ID จาก Category
-  status.textContent = "กำลังรวบรวมรายชื่อซีรีส์จาก Category...";
-  const ids = await fetchSeriesIdsFromCategory();
-  
-  if (ids.length === 0) {
-    status.textContent = "ไม่พบรายการซีรีส์ในหมวดหมู่ที่ระบุ";
-    return;
-  }
-
-  status.textContent = `พบ ${ids.length} เรื่อง กำลังเริ่มประมวลผล...`;
-
-  // 2. วนลูปดึงข้อมูลทีละเรื่อง
-  for (const id of ids) {
-    status.textContent = `กำลังดึงข้อมูล: ${id}...`;
-    const data = await processSeries(id);
-    if (!data) continue;
-
-    const m3u = generateM3U(data);
+// 1. ค้นหา ID หนังทั้งหมดจากหน้า Category โดยใช้ Regex (แม่นยำที่สุด)
+function extractSeriesIds(html) {
+    // ค้นหา URL ที่เป็น /series/xxx/ หรือ /series/xxx
+    const regex = /href="https:\/\/kubhd24\.net\/series\/([^"\/]+)\//g;
+    const ids = new Set();
+    let match;
     
-    // แสดงผล
-    const card = document.createElement("div");
-    card.className = "series-card clearfix";
-    card.innerHTML = `
-      <img class="poster" src="${data.poster.src}">
-      <div class="content-box">
-        <h2>${data.title}</h2>
-        <p style="font-size: 0.9em; color: #bbb;">${data.synopsis.substring(0, 200)}...</p>
-        <details>
-          <summary style="cursor:pointer; color:#2196F3">คลิกเพื่อดู Playlist (M3U)</summary>
-          <pre>${m3u}</pre>
-        </details>
-      </div>
-    `;
-    output.appendChild(card);
-  }
-  
-  status.textContent = "ประมวลผลหมวดหมู่เสร็จสิ้น!";
+    while ((match = regex.exec(html)) !== null) {
+        if (match[1] !== 'series') { // กันตัวหลอก
+            ids.add(match[1]);
+        }
+    }
+    return Array.from(ids);
 }
 
-start();
+// 2. ดึงข้อมูลตัวเล่น (M3U8)
+async function getStream(postId) {
+    const apiUrl = `https://kubhd24.net/wp-admin/admin-ajax.php?action=mix_get_player&post_id=${postId}`;
+    const res = await fetch(CONFIG.proxy + encodeURIComponent(apiUrl));
+    const json = await res.json();
+    if (!json.success) return null;
+
+    const embedMatch = json.player.match(/data-src="([^"]+)"/);
+    if (!embedMatch) return null;
+
+    const videoId = embedMatch[1].split('/').pop();
+    return `https://media.vdohls.com/${videoId}/playlist.m3u8`;
+}
+
+// 3. ประมวลผลหนังแต่ละเรื่อง
+async function parseSeries(id) {
+    const html = await getHTML(`https://kubhd24.net/series/${id}/`);
+    if (!html) return null;
+
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const title = doc.querySelector("h1")?.textContent.trim() || id;
+    const poster = doc.querySelector("img.wp-post-image")?.getAttribute("data-src") || doc.querySelector("img.wp-post-image")?.src;
+    
+    // ดึง ID ของตอนแรก (Post ID สำหรับ API)
+    const firstEpBtn = doc.querySelector("button.ep");
+    if (!firstEpBtn) return null;
+
+    const streamUrl = await getStream(firstEpBtn.id);
+    
+    return { id, title, poster, streamUrl };
+}
+
+async function init() {
+    const loader = document.getElementById("loader");
+    const stats = document.getElementById("stats");
+    const output = document.getElementById("output");
+
+    loader.textContent = "🔍 กำลังสแกนหาหนังในหมวดหมู่...";
+    const categoryHtml = await getHTML(CONFIG.categoryUrl);
+    
+    if (!categoryHtml) {
+        loader.textContent = "❌ ไม่สามารถติดต่อ Proxy ได้ หรือ URL ผิด";
+        return;
+    }
+
+    const ids = extractSeriesIds(categoryHtml);
+    stats.textContent = `พบซีรีส์ทั้งหมด ${ids.length} เรื่อง`;
+
+    if (ids.length === 0) {
+        loader.textContent = "❓ ไม่พบลิงก์ซีรีส์ (อาจต้องเช็ค Regex หรือ HTML)";
+        return;
+    }
+
+    loader.textContent = "🚀 กำลังดึง Playlist ของแต่ละเรื่อง...";
+
+    for (let i = 0; i < ids.length; i++) {
+        const id = ids[i];
+        loader.textContent = `⏳ กำลังประมวลผล (${i+1}/${ids.length}): ${id}`;
+        
+        const data = await parseSeries(id);
+        if (data && data.streamUrl) {
+            const m3u = `#EXTM3U\n#EXTINF:-1 tvg-logo="${data.poster}", ${data.title}\n${data.streamUrl}`;
+            
+            const card = document.createElement("div");
+            card.className = "card";
+            card.innerHTML = `
+                <img src="${data.poster}">
+                <div class="card-body">
+                    <div class="card-title">${data.title}</div>
+                    <button onclick="this.nextElementSibling.style.display='block'">ดู M3U</button>
+                    <div class="m3u-area">
+                        <pre>${m3u}</pre>
+                    </div>
+                </div>
+            `;
+            output.appendChild(card);
+        }
+    }
+    loader.textContent = "✅ ดึงข้อมูลสำเร็จครบทุกเรื่อง!";
+}
+
+init();
 </script>
 </body>
 </html>
