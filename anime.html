@@ -2,161 +2,149 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>Kub24HD Link Fixer Pro</title>
+    <title>Kub24HD & HPlay Parser Pro</title>
     <style>
-        :root { --primary: #00ff88; --bg: #0b0e14; --card: #151921; --text: #e0e0e0; }
-        body { font-family: 'Tahoma', sans-serif; background: var(--bg); color: var(--text); padding: 20px; line-height: 1.5; }
+        :root { --main: #00ff88; --bg: #0b0e14; --card: #151921; }
+        body { font-family: 'Tahoma', sans-serif; background: var(--bg); color: #e0e0e0; padding: 20px; }
         .container { max-width: 1100px; margin: 0 auto; }
-        
-        .header-section { text-align: center; padding: 20px; background: var(--card); border-radius: 15px; border-bottom: 3px solid var(--primary); margin-bottom: 30px; }
-        .control-bar { display: flex; gap: 15px; justify-content: center; align-items: center; flex-wrap: wrap; margin-top: 15px; }
-        
-        input { background: #000; border: 1px solid #333; color: var(--primary); padding: 10px; border-radius: 8px; width: 70px; text-align: center; font-weight: bold; }
-        button.btn-run { background: var(--primary); color: #000; padding: 10px 30px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        button.btn-run:hover { opacity: 0.8; transform: scale(1.05); }
-
-        .status-area { background: #000; padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid var(--primary); font-family: monospace; font-size: 13px; }
-        
-        .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .movie-card { background: var(--card); border-radius: 12px; overflow: hidden; border: 1px solid #222; }
-        .movie-card img { width: 100%; height: 380px; object-fit: cover; }
-        .movie-info { padding: 15px; }
-        .movie-title { font-size: 14px; font-weight: bold; color: #fff; margin-bottom: 10px; height: 40px; overflow: hidden; }
-        
-        .m3u-box { background: #000; color: #00ff41; padding: 10px; font-size: 11px; border-radius: 5px; margin-top: 10px; display: none; overflow-x: auto; max-height: 150px; white-space: pre-wrap; word-break: break-all; }
-        .copy-btn { background: #2a2e35; color: #fff; border: none; width: 100%; padding: 8px; cursor: pointer; border-radius: 5px; font-size: 12px; }
+        .header { text-align: center; background: var(--card); padding: 25px; border-radius: 15px; border-bottom: 4px solid var(--main); margin-bottom: 30px; }
+        .control { display: flex; gap: 15px; justify-content: center; align-items: center; }
+        input { background: #000; border: 1px solid #333; color: var(--main); padding: 10px; border-radius: 8px; width: 80px; text-align: center; font-weight: bold; }
+        button { background: var(--main); color: #000; padding: 10px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .status { background: #000; padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid var(--main); font-family: monospace; font-size: 13px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .card { background: var(--card); border-radius: 12px; overflow: hidden; border: 1px solid #222; }
+        .card img { width: 100%; height: 380px; object-fit: cover; }
+        .card-info { padding: 15px; }
+        .card-title { font-size: 14px; font-weight: bold; color: #fff; margin-bottom: 10px; height: 40px; overflow: hidden; }
+        pre { background: #000; color: #00ff41; padding: 10px; font-size: 11px; border-radius: 5px; margin-top: 10px; display: none; overflow-x: auto; max-height: 150px; white-space: pre-wrap; }
+        .btn-view { background: #2a2e35; color: #fff; border: none; width: 100%; padding: 8px; cursor: pointer; border-radius: 5px; font-size: 12px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header-section">
-        <h1 style="margin:0; color: var(--primary);">🎬 KubHD24 Auto Parser</h1>
-        <div class="control-bar">
-            <label>เริ่มหน้า:</label>
-            <input type="number" id="startP" value="1">
+    <div class="header">
+        <h1>🚀 KubHD24 + HPlay Embed Parser</h1>
+        <div class="control">
+            <label>หน้าเริ่มต้น:</label>
+            <input type="number" id="pageS" value="1">
             <label>ถึงหน้า:</label>
-            <input type="number" id="endP" value="1">
-            <button class="btn-run" onclick="startProcess()">🚀 เริ่มดึงข้อมูล</button>
+            <input type="number" id="pageE" value="1">
+            <button onclick="startHarvest()">เริ่มดึงข้อมูล</button>
         </div>
     </div>
 
-    <div id="status" class="status-area">ระบบพร้อมทำงาน... กรุณากดปุ่มเพื่อเริ่ม</div>
-
-    <div id="results" class="movie-grid"></div>
+    <div id="status" class="status">ระบบสแตนด์บาย...</div>
+    <div id="output" class="grid"></div>
 </div>
 
 <script>
 const PROXY = '/api/proxy-k24hd?url=';
-const BASE_URL = 'https://kubhd24.net/category/mystery/'; // เปลี่ยน Category ตรงนี้ได้
+const TARGET_CAT = 'https://kubhd24.net/category/mystery/';
 
-async function fetchHTML(url) {
+async function getHTML(url) {
     try {
         const res = await fetch(PROXY + encodeURIComponent(url));
         return res.ok ? await res.text() : null;
     } catch (e) { return null; }
 }
 
-async function getStreamLink(postId) {
+async function getM3U8FromPost(postId) {
     const api = `https://kubhd24.net/wp-admin/admin-ajax.php?action=mix_get_player&post_id=${postId}`;
     try {
         const res = await fetch(PROXY + encodeURIComponent(api));
         const json = await res.json();
         if (json?.success) {
-            const match = json.player.match(/data-src="([^"]+)"/);
-            if (match) {
-                const id = match[1].split('/').pop();
-                return `https://media.vdohls.com/${id}/playlist.m3u8`;
-            }
+            // ค้นหา ID จาก iframe src ในก้อน JSON.player
+            const embedMatch = json.player.match(/src="https:\/\/hplay\.hdplayfull\.xyz\/embed\/([^"]+)"/);
+            const directMatch = json.player.match(/data-src="([^"]+)"/);
+            
+            let videoId = null;
+            if (embedMatch) videoId = embedMatch[1];
+            else if (directMatch) videoId = directMatch[1].split('/').pop();
+
+            if (videoId) return `https://media.vdohls.com/${videoId}/playlist.m3u8`;
         }
     } catch (e) {}
     return null;
 }
 
-async function parseMoviePage(slug) {
-    const html = await fetchHTML(`https://kubhd24.net/movie/${slug}/`);
+async function parseContent(slug) {
+    const html = await getHTML(`https://kubhd24.net/movie/${slug}/`);
     if (!html) return null;
     
     const doc = new DOMParser().parseFromString(html, "text/html");
     const title = doc.querySelector("h1")?.textContent.trim();
     const poster = doc.querySelector("img.wp-post-image")?.getAttribute("data-src") || doc.querySelector("img.wp-post-image")?.src;
     
-    let items = [];
-    
-    // --- โหมดซีรีส์ (ดึงจากปุ่ม #eplist) ---
+    let links = [];
     const epBtns = doc.querySelectorAll("#eplist button.ep");
+
     if (epBtns.length > 0) {
         for (const btn of epBtns) {
-            const m3u8 = await getStreamLink(btn.id);
-            if (m3u8) items.push({ ep: btn.textContent.trim(), url: m3u8 });
+            const url = await getM3U8FromPost(btn.id);
+            if (url) links.push({ label: btn.textContent.trim(), url });
         }
-    } 
-    // --- โหมดหนัง (ดึงจาก Post ID ในหน้า) ---
-    else {
+    } else {
         const idMatch = html.match(/post_id\s*[:=]\s*["']?(\d+)["']?/);
         if (idMatch) {
-            const m3u8 = await getStreamLink(idMatch[1]);
-            if (m3u8) items.push({ ep: "Full Movie", url: m3u8 });
+            const url = await getM3U8FromPost(idMatch[1]);
+            if (url) links.push({ label: "Full Movie", url });
         }
     }
-
-    return items.length > 0 ? { title, poster, items } : null;
+    return links.length > 0 ? { title, poster, links } : null;
 }
 
-async function startProcess() {
-    const start = parseInt(document.getElementById("startP").value);
-    const end = parseInt(document.getElementById("endP").value);
+async function startHarvest() {
+    const s = parseInt(document.getElementById("pageS").value);
+    const e = parseInt(document.getElementById("pageE").value);
     const status = document.getElementById("status");
-    const grid = document.getElementById("results");
+    const output = document.getElementById("output");
 
-    grid.innerHTML = "";
+    output.innerHTML = "";
     
-    for (let p = start; p <= end; p++) {
-        status.innerHTML = `🔍 กำลังสแกนหน้ารายการที่ ${p}...`;
-        const pageUrl = p === 1 ? BASE_URL : `${BASE_URL}page/${p}/`;
-        const html = await fetchHTML(pageUrl);
-        if (!html) continue;
+    for (let p = s; p <= e; p++) {
+        status.innerHTML = `🔍 กำลังสแกนหน้า ${p}...`;
+        const catHtml = await getHTML(p === 1 ? TARGET_CAT : `${TARGET_CAT}page/${p}/`);
+        if (!catHtml) continue;
 
         const regex = /href="https:\/\/kubhd24\.net\/movie\/([^"\/]+)\//g;
-        const matches = [...new Set([...html.matchAll(regex)].map(m => m[1]))].filter(id => id !== 'movie');
+        const matches = [...new Set([...catHtml.matchAll(regex)].map(m => m[1]))].filter(id => id !== 'movie');
 
         for (let i = 0; i < matches.length; i++) {
-            status.innerHTML = `⏳ หน้า ${p} | กำลังขูดข้อมูลเรื่องที่ ${i+1}/${matches.length}: <b>${matches[i]}</b>`;
-            const data = await parseMoviePage(matches[i]);
-            
-            if (data) {
-                renderCard(data);
-            }
+            status.innerHTML = `⏳ หน้า ${p} | กำลังจัดการเรื่องที่ ${i+1}/${matches.length}: <b>${matches[i]}</b>`;
+            const data = await parseContent(matches[i]);
+            if (data) renderItem(data);
         }
     }
-    status.innerHTML = "✅ เสร็จสิ้นการดึงข้อมูลทั้งหมด!";
+    status.innerHTML = "✅ ดึงข้อมูลสำเร็จ!";
 }
 
-function renderCard(data) {
-    let playlist = "#EXTM3U\n";
-    data.items.forEach(it => {
-        playlist += `#EXTINF:-1 tvg-logo="${data.poster}" group-title="${data.title}", ${data.title} - ${it.ep}\n${it.url}\n`;
+function renderItem(data) {
+    let m3u8Content = "#EXTM3U\n";
+    data.links.forEach(l => {
+        m3u8Content += `#EXTINF:-1 tvg-logo="${data.poster}" group-title="${data.title}", ${data.title} - ${l.label}\n${l.url}\n`;
     });
 
-    const card = document.createElement("div");
-    card.className = "movie-card";
-    card.innerHTML = `
+    const el = document.createElement("div");
+    el.className = "card";
+    el.innerHTML = `
         <img src="${data.poster}" loading="lazy">
-        <div class="movie-info">
-            <div class="movie-title">${data.title}</div>
-            <button class="copy-btn" onclick="toggleM3U(this)">📂 คลิกดู M3U8 (${data.items.length} ตอน)</button>
-            <div class="m3u-box">${playlist}</div>
+        <div class="card-info">
+            <div class="card-title">${data.title}</div>
+            <button class="btn-view" onclick="togglePre(this)">📂 ดู Playlist M3U8</button>
+            <pre>${m3u8Content}</pre>
         </div>
     `;
-    document.getElementById("results").appendChild(card);
+    document.getElementById("output").appendChild(el);
 }
 
-function toggleM3U(btn) {
-    const box = btn.nextElementSibling;
-    box.style.display = box.style.display === "block" ? "none" : "block";
-    btn.innerText = box.style.display === "block" ? "✖ ปิด" : "📂 คลิกดู M3U8";
+function togglePre(btn) {
+    const pre = btn.nextElementSibling;
+    pre.style.display = pre.style.display === "block" ? "none" : "block";
+    btn.innerText = pre.style.display === "block" ? "✖ ปิด" : "📂 ดู Playlist M3U8";
 }
 </script>
-
 </body>
 </html>
