@@ -72,7 +72,7 @@ async function getStream(postId) {
 }
 
 async function parseSeries(id) {
-    const html = await request(`https://kubhd24.net/series/${id}/`);
+    const html = await request(`https://kubhd24.net/movie/${id}/`);
     if (!html) return null;
     const doc = new DOMParser().parseFromString(html, "text/html");
     const title = doc.querySelector("h1")?.textContent.trim() || id;
@@ -104,8 +104,8 @@ async function startHarvesting() {
         const catHtml = await request(pageUrl);
         if (!catHtml) continue;
 
-        const regex = /href="https:\/\/kubhd24\.net\/series\/([^"\/]+)\//g;
-        const ids = Array.from(new Set([...catHtml.matchAll(regex)].map(m => m[1]))).filter(i => i !== 'series');
+        const regex = /href="https:\/\/kubhd24\.net\/movie\/([^"\/]+)\//g;
+        const ids = Array.from(new Set([...catHtml.matchAll(regex)].map(m => m[1]))).filter(i => i !== 'movie');
         
         totalSeriesFound += ids.length;
         stats.textContent = `กำลังจัดการหน้าที่ ${p} (พบใหม่ ${ids.length} เรื่อง / รวมสะสม ${totalSeriesFound} เรื่อง)`;
