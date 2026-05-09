@@ -1,31 +1,32 @@
-// api/proxy.js
 export default async function handler(req, res) {
   const target = req.query.url;
   if (!target) {
-    res.status(400).json({ error: "Missing url parameter" });
-    return;
+    return res.status(400).send("Missing url parameter");
   }
 
   try {
     const response = await fetch(target, {
       headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-        "Referer": "https://ballsod24hrs.com/"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
+        "Referer": "https://ballsod24hrs.com/",
+        "Origin": "https://ballsod24hrs.com/"
       }
     });
 
     if (!response.ok) {
-      res.status(response.status).json({ error: "Failed to fetch target" });
-      return;
+      return res.status(response.status).send(`Failed to fetch: ${response.statusText}`);
     }
 
-    const text = await response.text();
+    const data = await response.text();
 
-    // อนุญาตให้ frontend เรียกได้
+    // ตั้งค่า Header ให้ถูกต้องสำหรับ HLS
     res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Content-Type", "text/html; charset=utf-8");
-    res.status(200).send(text);
+    res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+    res.setHeader("Content-Type", "application/vnd.apple.mpegurl"); 
+    res.setHeader("Cache-Control", "no-cache");
+
+    return res.status(200).send(data);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message });
   }
 }
