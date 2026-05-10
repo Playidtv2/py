@@ -8,7 +8,7 @@
     <title>JAV VOD Streaming</title>
     
     <!-- Web Icon -->
-    <link rel="icon" href="icon.svg" type="image/svg+xml">
+    <link rel="icon" href="av/icon.svg" type="image/svg+xml">
     
     <!-- React & ReactDOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -255,7 +255,7 @@ const useProxy = (url) => {
             useEffect(() => {
                 if (!window.Playerjs) {
                     const script = document.createElement('script');
-                    script.src = 'playerjs.js';
+                    script.src = 'av/playerjs.js';
                     script.async = true;
                     script.onload = () => setLoaded(true);
                     script.onerror = () => console.warn("PlayerJS script not found");
