@@ -1,5 +1,3 @@
 #EXTM3U
 #EXT-X-STREAM-INF:NAME=original,BANDWIDTH=4500000,RESOLUTION=1920x1080
-https://live-global-cdn-v02.sooplive.com/live-stm-06/auth_master_playlist.m3u8?aid=.A32.pxqRXFPZNcY9Qg1.g2JaAdCWYhVkv2fi4cvkHU6Ex7HX8Cyn9Nlby-_59mq64rOZ_OMwNtnAtMnJPtmGG7_sndQnlgqp7Du3bGPqfYmTytJgih6gkpsj0MD6QIGFORx8fLaCCf4aRAh7mFbEATqFFfQqtwszfgiLUQDgwqVE-6aMBLYLbQv6i5N5y7bC5SajqSjHPzt8UJUqbZ8a
-#EXT-X-STREAM-INF:NAME=hd4k,BANDWIDTH=1382400,RESOLUTION=1280x720
-https://live-global-cdn-v02.sooplive.com/live-stm-06/auth_playlist.m3u8?aid=.A32.pxqRXFPZNcY9Qg1.g2JaAdCWYhVkv2fi4cvkHRec27J_nZlRf0ZLGGhx-mkLXpZzjKxAqr8iyqKb489Rj8JPiI3La7SLOc4Q9Us-0kWamzkonXUWEPbrCfm28Dgb19uBcLAKbOfWJ1IeEAr0Jwkwm4JPHCmOJ-eS4vCxBqBaaTURl5vOjC0Lm3IjpdU,
+https://live-global-cdn-v02.sooplive.com/live-stm-04/auth_playlist.m3u8?aid=.A32.pxqRXFPZNcY9Qg1.g2JaAdCWYhVkv2fi4cvkHU6Ex7HX8Cyn9Nlby-_59mq64rOZ_OMwNtnAtMnJPtmGG7_sndQnlgqp7Du3bGPqfYmTytJgih6gkpsj0MD6QIGFORx8fLaCCf4aRAh7mFbEATqFFfQqtwszfgiLUQDgwqVE-6aMBLYLbQv6i5N5y7bC5SajqSjHPzt8UJUqbZ8a
