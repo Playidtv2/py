@@ -53,7 +53,7 @@
 
 <script>
 const PROXY = '/api/proxy-k24hd?url=';
-const BASE_CAT = 'https://kubhd24.net/category/animation/';
+const BASE_CAT = 'https://kubhd24.net/category/chinese-series/';
 
 async function request(url, isJson = false) {
     try {
@@ -72,7 +72,7 @@ async function getStream(postId) {
 }
 
 async function parseSeries(id) {
-    const html = await request(`https://kubhd24.net/movie/${id}/`);
+    const html = await request(`https://kubhd24.net/series/${id}/`);
     if (!html) return null;
     const doc = new DOMParser().parseFromString(html, "text/html");
     const title = doc.querySelector("h1")?.textContent.trim() || id;
