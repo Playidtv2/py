@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Streaming Player (Proxy Enabled)</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+    <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+
+    <style>
+        .video-js { width: 100%; height: auto; aspect-ratio: 16/9; }
+        body { background-color: #0f172a; color: white; font-family: sans-serif; }
+        .btn-channel { background-color: #1e293b; border: 1px solid #334155; }
+        .btn-channel:hover { background-color: #2563eb; border-color: #3b82f6; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">
+                LIVE STREAM PRO
+            </h1>
+            <p class="text-slate-400 text-xs mt-2 uppercase tracking-widest">Proxy System Enabled</p>
+        </header>
+
+        <div class="bg-black rounded-2xl overflow-hidden shadow-2xl shadow-blue-500/10 mb-8 border border-white/5">
+            <video id="my-video" class="video-js vjs-big-play-centered vjs-theme-city" controls preload="auto">
+            </video>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <button onclick="startStream('axn')" class="btn-channel p-4 rounded-xl transition font-bold shadow-lg">AXN HD</button>
+            <button onclick="startStream('true_sport_hd')" class="btn-channel p-4 rounded-xl transition font-bold shadow-lg">True Sport</button>
+            <button onclick="startStream('mono29')" class="btn-channel p-4 rounded-xl transition font-bold shadow-lg">MONO 29</button>
+            <button onclick="startStream('ch7')" class="btn-channel p-4 rounded-xl transition font-bold shadow-lg">CH 7 HD</button>
+        </div>
+
+        <div id="status" class="mt-8 py-3 px-6 rounded-full bg-white/5 border border-white/10 text-sm text-slate-400 text-center mx-auto w-fit">
+            Ready to Stream
+        </div>
+    </div>
+
+    <script>
+        /* --- PROXY CONFIG --- */
+        const PROXY_BASE = "https://doofree.playidlive.workers.dev";
+        const PROXY_KEY  = "JAV-TH_BY_IDOL-CHAMP_2530";
+
+        const TOKEN_URL = "https://license.lkdapi.site/stream/jwt";
+        const STREAM_TOKEN_URL = "https://license.lkdapi.site/stream/token";
+        const STREAM_FINAL_BASE_URL = "https://live1.stream.liveplayback.net/dookeela/";
+
+        const player = videojs('my-video');
+
+        // ฟังก์ชันครอบ Proxy
+        function useProxy(url) {
+            return `${PROXY_BASE}?key=${PROXY_KEY}&url=${encodeURIComponent(url)}`;
+        }
+
+        function setStatus(msg, isError = false) {
+            const el = document.getElementById('status');
+            el.innerText = msg;
+            el.className = isError 
+                ? "mt-8 py-3 px-6 rounded-full bg-red-500/10 border border-red-500/20 text-sm text-red-400 text-center mx-auto w-fit" 
+                : "mt-8 py-3 px-6 rounded-full bg-blue-500/10 border border-blue-500/20 text-sm text-blue-400 text-center mx-auto w-fit";
+        }
+
+        async function startStream(channel) {
+            try {
+                setStatus(`Requesting Token via Proxy...`);
+                
+                // 1. Get JWT Token (ผ่าน Proxy)
+                const jwtResponse = await fetch(useProxy(TOKEN_URL));
+                if (!jwtResponse.ok) throw new Error("Token Error (CORS/Network)");
+                const jwtData = await jwtResponse.json();
+                const token = jwtData.token;
+
+                setStatus(`Requesting License...`);
+
+                // 2. Get Stream License (ผ่าน Proxy)
+                const licenseUrl = `${STREAM_TOKEN_URL}?app=dookeela&channel=${channel}&token=${token}`;
+                const licenseResponse = await fetch(useProxy(licenseUrl));
+                if (!licenseResponse.ok) throw new Error("License Error (CORS/Network)");
+                const licenseData = await licenseResponse.json();
+                const license = licenseData.license;
+
+                // 3. Build Final URL
+                const finalUrl = `${STREAM_FINAL_BASE_URL}${channel}/playlist.m3u8?wmsAuthSign=${license}`;
+                
+                // 4. Play Video (ผ่าน Proxy เพื่อเลี่ยงการบล็อกไฟล์ .m3u8 และ .ts)
+                player.src({
+                    src: useProxy(finalUrl),
+                    type: 'application/x-mpegURL'
+                });
+                
+                player.play();
+                setStatus(`Now Playing: ${channel.toUpperCase()}`);
+
+            } catch (error) {
+                console.error("Stream Error:", error);
+                setStatus(`Error: ${error.message}`, true);
+            }
+        }
+    </script>
+</body>
+</html>
