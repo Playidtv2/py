@@ -1,31 +1,22 @@
-// api/proxy.js
-export default async function handler(req, res) {
-  const target = req.query.url;
-  if (!target) {
-    res.status(400).json({ error: "Missing url parameter" });
-    return;
-  }
+// 1. กำหนด URL ของ Worker หรือ Proxy Server ที่คุณสร้างขึ้น
+const PROXY_BASE = "https://doofree.playidlive.workers.dev/proxy";
 
-  try {
-    const response = await fetch(target, {
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-        "Referer": "https://dookeela4.live/"
-      }
-    });
+// 2. กำหนด Key (ถ้ามี) เพื่อความปลอดภัย ไม่ให้คนอื่นแอบใช้ Proxy ของเรา
+const PROXY_KEY  = "2026"; 
 
-    if (!response.ok) {
-      res.status(response.status).json({ error: "Failed to fetch target" });
-      return;
-    }
-
-    const text = await response.text();
-
-    // อนุญาตให้ frontend เรียกได้
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Content-Type", "text/html; charset=utf-8");
-    res.status(200).send(text);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+/**
+ * ฟังก์ชันสำหรับแปลง URL ปกติให้วิ่งผ่าน Proxy
+ * @param {string} targetUrl - URL ต้นทางที่ต้องการดึงข้อมูล (เช่น m3u8 หรือ API)
+ */
+function useProxy(targetUrl) {
+    if (!targetUrl) return "";
+    // ใช้ encodeURIComponent เพื่อป้องกันปัญหาอักขระพิเศษใน URL
+    return `${PROXY_BASE}?key=${PROXY_KEY}&url=${encodeURIComponent(targetUrl)}`;
 }
+
+// ตัวอย่างการใช้งาน
+const originalUrl = "https://api.example.com/data.json";
+const proxiedUrl = useProxy(originalUrl);
+
+console.log(proxiedUrl); 
+// ผลลัพธ์: https://ชื่อโปรเจกต์ของคุณ.workers.dev/proxy?key=รหัสลับของคุณ_2026&url=https%3A%2F%2Fapi.example.com%2Fdata.json
