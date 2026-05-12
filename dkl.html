@@ -45,8 +45,17 @@
 
     <script>
         /* --- PROXY CONFIG --- */
-        const PROXY_BASE = "https://doofree.playidlive.workers.dev";
-        const PROXY_KEY  = "JAV-TH_BY_IDOL-CHAMP_2530";
+   const PROXY = '/api/proxy-dkl?url=';
+const BASE_CAT = 'https://kubhd24.net/category/watch-series/';
+
+async function request(url, isJson = false) {
+    try {
+        const res = await fetch(PROXY + encodeURIComponent(url));
+        if (!res.ok) return null;
+        return isJson ? await res.json() : await res.text();
+    } catch (e) { return null; }
+}
+
 
         const TOKEN_URL = "https://license.lkdapi.site/stream/jwt";
         const STREAM_TOKEN_URL = "https://license.lkdapi.site/stream/token";
