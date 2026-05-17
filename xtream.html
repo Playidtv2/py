@@ -1,123 +1,144 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#000814">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="mobile-web-app-capable" content="yes">
-<title>Xtream M3U Converter</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-<style>
-    html {
-        overflow-x: hidden;
-        width: 100%;
-        position: relative;
+  <meta charset="UTF-8">
+  <title>ดูบอลสด ดูบอลฟรี ดูบอลออนไลน์ รวมช่องถ่ายทอดสด วันนี้ | SCOREMUN</title>
+  <meta name="description" content="ดูบอลสดวันนี้ ดูบอลฟรี ดูบอลออนไลน์ รวมช่องถ่ายทอดสดครบ เลือกดูฟุตบอลได้ทันที รองรับมือถือและคอม ภาพชัด อัปเดตลิงก์ตลอดวัน">
+  <meta name="keywords" content="ดูบอล, ดูบอลสด, ดูบอลฟรี, ดูบอลออนไลน์, ดูฟุตบอล, ถ่ายทอดสดฟุตบอล, บอลสดวันนี้, รวมช่องถ่ายทอดสด, BEIN 1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@~1/dist/hls.min.js"></script>
+
+  <link rel="stylesheet" href="https://cdn.vidstack.io/player/theme.css" />
+  <link rel="stylesheet" href="https://cdn.vidstack.io/player/video.css" />
+  <script src="https://cdn.vidstack.io/player" type="module"></script>
+</head>
+
+<body class="bg-zinc-900 text-white">
+
+  <div class="max-w-6xl mx-auto p-4 mt-4">
+    <h1 id="player-title" class="text-xl font-semibold mb-4 text-center sm:text-left">
+      กำลังรับชม: BEIN 1 ดูบอลออนไลน์
+    </h1>
+
+    <div class="rounded-xl overflow-hidden shadow-2xl bg-black aspect-video">
+      <media-player id="media-player" autoplay playsinline class="w-full h-full">
+        <media-provider></media-provider>
+        <media-video-layout></media-video-layout>
+      </media-player>
+    </div>
+  </div>
+
+  <hr class="border-zinc-800 my-6">
+
+  <div class="max-w-7xl mx-auto px-4 py-6">
+    <h2 class="text-2xl font-bold mb-6">ดูบอลสด ดูบอลฟรี ดูบอลออนไลน์</h2>
+
+    <h3 class="text-xl font-semibold mb-4 border-b border-zinc-700 pb-2 text-emerald-400">
+      ช่องกีฬาไทย
+    </h3>
+    <div class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
+      <button onclick="playChannel('BEIN 1', 'https://cdnsv1.cdncloudbot.com/goalmun/bein1/playlist.m3u8')" 
+              class="bg-zinc-800 hover:bg-zinc-700 active:scale-95 rounded-lg p-3 flex flex-col items-center transition cursor-pointer">
+        <img src="https://www.scoremun.com/channels-logo/bein1.png" class="h-12 mb-2 object-contain" alt="BEIN 1" loading="lazy">
+        <div class="text-sm text-center">BEIN 1</div>
+      </button>
+
+      <button onclick="playChannel('BEIN 2', 'https://cdnsv1.cdncloudbot.com/goalmun/bein2/playlist.m3u8')" 
+              class="bg-zinc-800 hover:bg-zinc-700 active:scale-95 rounded-lg p-3 flex flex-col items-center transition cursor-pointer">
+        <img src="https://www.scoremun.com/channels-logo/bein2.png" class="h-12 mb-2 object-contain" alt="BEIN 2" loading="lazy">
+        <div class="text-sm text-center">BEIN 2</div>
+      </button>
+
+      <button onclick="playChannel('BEIN 3', 'https://cdnsv1.cdncloudbot.com/goalmun/bein3/playlist.m3u8')" 
+              class="bg-zinc-800 hover:bg-zinc-700 active:scale-95 rounded-lg p-3 flex flex-col items-center transition cursor-pointer">
+        <img src="https://www.scoremun.com/channels-logo/bein3.png" class="h-12 mb-2 object-contain" alt="BEIN 3" loading="lazy">
+        <div class="text-sm text-center">BEIN 3</div>
+      </button>
+
+      <button onclick="playChannel('True Premier Football 3', 'https://cdnsv1.cdncloudbot.com/goalmun/tpf3/playlist.m3u8')" 
+              class="bg-zinc-800 hover:bg-zinc-700 active:scale-95 rounded-lg p-3 flex flex-col items-center transition cursor-pointer">
+        <img src="https://www.scoremun.com/channels-logo/truepremier3.png" class="h-12 mb-2 object-contain" alt="True Premier Football 3" loading="lazy">
+        <div class="text-sm text-center">True Premier 3</div>
+      </button>
+
+      <button onclick="playChannel('SPOTV 1', 'https://cdnsv1.cdncloudbot.com/goalmun/spotv1/playlist.m3u8')" 
+              class="bg-zinc-800 hover:bg-zinc-700 active:scale-95 rounded-lg p-3 flex flex-col items-center transition cursor-pointer">
+        <img src="https://www.scoremun.com/channels-logo/spotv1.png" class="h-12 mb-2 object-contain" alt="SPOTV 1" loading="lazy">
+        <div class="text-sm text-center">SPOTV 1</div>
+      </button>
+    </div>
+
+    <h3 class="text-xl font-semibold mb-4 border-b border-zinc-700 pb-2 text-sky-400">
+      ช่องดิจิตอลทีวี
+    </h3>
+    <div class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
+      <button onclick="playChannel('PPTV HD 36', 'https://cdnsv1.cdncloudbot.com/goalmun/pptv/playlist.m3u8')" 
+              class="bg-zinc-800 hover:bg-zinc-700 active:scale-95 rounded-lg p-3 flex flex-col items-center transition cursor-pointer">
+        <img src="https://www.scoremun.com/channels-logo/pptv.png" class="h-12 mb-2 object-contain" alt="PPTV" loading="lazy">
+        <div class="text-sm text-center">PPTV</div>
+      </button>
+
+      <button onclick="playChannel('Thairath TV', 'https://cdnsv1.cdncloudbot.com/goalmun/thairathtv/playlist.m3u8')" 
+              class="bg-zinc-800 hover:bg-zinc-700 active:scale-95 rounded-lg p-3 flex flex-col items-center transition cursor-pointer">
+        <img src="https://www.scoremun.com/channels-logo/thairath.png" class="h-12 mb-2 object-contain" alt="THAIRATH TV" loading="lazy">
+        <div class="text-sm text-center">THAIRATH TV</div>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // ฟังก์ชันสำหรับแปลง m3u8 URL ให้วิ่งผ่าน Proxy พร้อมใส่ Header Referer
+    functionกรองProxy(originalM3u8Url, licenseKey = '') {
+      const targetUrl = originalM3u8Url + (licenseKey ? "?wmsAuthSign=" + licenseKey : "");
+      
+      // ตัวอย่างการสร้าง Proxy URL โครงสร้างตามมาตรฐาน CORS Proxy ทั่วไป
+      // คุณสามารถเปลี่ยน 'https://your-proxy-service.com/proxy' เป็น Endpoint Proxy จริงของคุณได้เลยครับ
+      const proxyBase = "https://your-proxy-service.com/proxy"; 
+      
+      // ส่งค่าเป้าหมายและส่ง Referer ไปใน Query string เพื่อให้หลังบ้านนำไปสวม Header
+      return `${proxyBase}?url=${encodeURIComponent(targetUrl)}&referer=${encodeURIComponent("https://www.scoremun.com")}`;
     }
-    
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        -webkit-tap-highlight-color: transparent;
+
+    // ฟังก์ชันเปลี่ยนช่องและดึง Token ป้องกันสตรีมดับ
+    function playChannel(channelName, streamUrl) {
+      document.getElementById("player-title").innerText = `กำลังรับชม: ${channelName} ดูบอลออนไลน์`;
+
+      // ดึง Key อนุมัติสิทธิ์ (License) ก่อนเล่น
+      fetch("https://license.dooball66.xyz?_=" + Date.now())
+        .then(res => res.json())
+        .then(data => {
+          const finalStreamUrl = กรองProxy(streamUrl, data.license);
+          
+          // ส่ง URL ที่ผ่าน Proxy แล้วเข้าตัวเล่น Vidstack
+          document.getElementById("media-player").setAttribute("src", finalStreamUrl);
+        })
+        .catch(err => {
+          console.error("ไม่สามารถดึงข้อมูล License ได้:", err);
+          // หาก Fetch พัง ให้ลองเล่นแบบไม่มี Token ผ่าน Proxy
+          document.getElementById("media-player").setAttribute("src", กรองProxy(streamUrl));
+        });
     }
-    
-    body {
-        background: linear-gradient(135deg, #0a0e27 0%, #000814 50%, #001220 100%);
-        color: #00f0ff;
-        font-family: 'Poppins', sans-serif;
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 15px;
-        position: relative;
-        overflow-x: hidden;
-        overflow-y: auto;
-    }
-    
-    body::before {
-        content: '';
-        position: absolute;
-        width: 500px;
-        height: 500px;
-        background: radial-gradient(circle, rgba(0,240,255,0.1) 0%, transparent 70%);
-        top: -250px;
-        right: -250px;
-        animation: float 8s ease-in-out infinite;
-    }
-    
-    body::after {
-        content: '';
-        position: absolute;
-        width: 400px;
-        height: 400px;
-        background: radial-gradient(circle, rgba(0,240,255,0.08) 0%, transparent 70%);
-        bottom: -200px;
-        left: -200px;
-        animation: float 6s ease-in-out infinite reverse;
-    }
-    
-    @keyframes float {
-        0%, 100% { transform: translate(0, 0) scale(1); }
-        50% { transform: translate(30px, 30px) scale(1.1); }
-    }
-    
-    .container {
-        background: rgba(0, 17, 26, 0.85);
-        backdrop-filter: blur(10px);
-        padding: 40px 35px;
-        border-radius: 30px;
-        box-shadow: 0 20px 60px rgba(0,255,255,0.2), 0 0 1px rgba(0,255,255,0.5);
-        width: 100%;
-        max-width: 450px;
-        text-align: center;
-        position: relative;
-        z-index: 1;
-        border: 1px solid rgba(0,240,255,0.1);
-        margin: auto;
-    }
-    
-    h1 {
-        color: #00ffff;
-        font-size: 26px;
-        margin-bottom: 8px;
-        font-weight: 700;
-        text-shadow: 0 0 20px rgba(0,255,255,0.5);
-        line-height: 1.2;
-    }
-    
-    .subtitle {
-        color: #00b8d4;
-        font-size: 12px;
-        margin-bottom: 25px;
-        font-weight: 300;
-        line-height: 1.4;
-    }
-    
-    .form-group {
-        margin-bottom: 18px;
-        text-align: left;
-    }
-    
-    label {
-        display: block;
-        font-size: 12px;
-        color: #00d4ff;
-        margin-bottom: 6px;
-        font-weight: 500;
-    }
-    
-    input, select {
-        width: 100%;
-        padding: 13px 16px;
-        border: 2px solid rgba(0,240,255,0.2);
-        border-radius: 12px;
-        outline: none;
-        background: rgba(0, 30, 41, 0.6);
-        color: #00ffff;
+
+    // สั่งให้เริ่มต้นมาเล่นช่อง BEIN 1 ทันทีเมื่อเปิดหน้าเว็บ
+    window.addEventListener('DOMContentLoaded', () => {
+      playChannel('BEIN 1', 'https://cdnsv1.cdncloudbot.com/goalmun/bein1/playlist.m3u8');
+    });
+  </script>
+
+  <script type="module">
+    const player = document.querySelector("media-player");
+    player.addEventListener("provider-change", (e) => {
+      if (e.detail?.type === "hls") {
+        e.detail.library = window.Hls;
+      }
+    });
+  </script>
+
+</body>
+</html>
         font-size: 14px;
         font-family: 'Poppins', sans-serif;
         transition: all 0.3s ease;
