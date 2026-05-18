@@ -39,8 +39,14 @@
     <button class="btn-download" id="dlBtn" disabled>📥 ดาวน์โหลดไฟล์ .m3u</button>
   </div>
 </div>
-
-<script>
+  <script>
+async function fetchViaProxy(url) {
+  const proxyUrl = `/api/proxy?url=${encodeURIComponent(url)}`;
+  const res = await fetch(proxyUrl);
+  if (!res.ok) return null;
+  return await res.text();
+}
+  
     const API_URL = "https://api-soccer.thai-play.com/api/v4/iptv/livescore/now?token=JF6pHMnpVCRUeEsSqAAjTWA4GbGhMrpD";
     let currentM3U = "";
 
