@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>APP Doo Channel</title>
-  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2=family=Prompt:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <style>
     * { box-sizing: border-box; font-family: 'Prompt', sans-serif; margin: 0; padding: 0; }
@@ -94,7 +94,6 @@
 <body>
   <div class="header-container">
     <h1>🎬 รวมเว็บดูหนังซีรีส์ </h1>
-    <!-- ✅ ปุ่มสลับหน้าลับดูทีวี -->
     <button id="tvModeBtn" class="category-bar button btn-tv-mode" onclick="toggleTvMode()">📺 สลับไปหน้าดูทีวี</button>
   </div>
 
@@ -116,7 +115,7 @@
   
   <div id="dialogContainer"></div>
 
-  <!-- ✅ Modal สำหรับใส่รหัสผ่านหน้าลับ -->
+  <!-- Modal สำหรับใส่รหัสผ่านหน้าลับ -->
   <div id="lockModalOverlay" class="dialog-overlay" style="display: none;">
     <div class="lock-modal">
       <h3>🔒 พื้นที่นี้ต้องการรหัสผ่าน</h3>
@@ -125,7 +124,6 @@
         <button class="btn-confirm" onclick="verifyTvPassword()">ยืนยัน</button>
         <button class="btn-cancel" onclick="closeLockModal()">ยกเลิก</button>
       </div>
-      <!-- ✅ ข้อความขอแอดมิน -->
       <div class="admin-contact" onclick="alert('กรุณาติดต่อแอดมินที่ Line ID: @YourAdmin LINE หรือ Telegram เพื่อขอรับรหัสผ่านฟรี!')">
         🚫 ไม่มีรหัสผ่าน? คลิกเพื่อขอแอดมิน
       </div>
@@ -134,9 +132,11 @@
 
   <script>
     // ⚙️ ตั้งค่าความปลอดภัย
-    const TV_SECRET_PASSWORD = "1234"; // 🔑 เปลี่ยนรหัสผ่านตรงนี้ได้ตามต้องการ
-    const TV_DATA_URL = 'https://dl.dropboxusercontent.com/scl/fi/9pr3oci7870tqsd3wn7gg/tv.json?rlkey=8a7ku7mytpogfn0wwh3sk1yxz&e=1&st=2zig02ov&dl=0'; // ลิงก์ช่องทีวี (เปลี่ยนแยกได้)
+    const TV_SECRET_PASSWORD = "1234"; 
+    
+    // 💡 แก้ไข: แยกลิงก์ JSON ของทีวี และ หนัง/ซีรีส์ ออกจากกันให้ถูกต้อง
     const MOVIE_DATA_URL = 'https://dl.dropboxusercontent.com/scl/fi/9pr3oci7870tqsd3wn7gg/tv.json?rlkey=8a7ku7mytpogfn0wwh3sk1yxz&e=1&st=2zig02ov&dl=0';
+    const TV_DATA_URL = 'https://dl.dropboxusercontent.com/scl/fi/YOUR_REAL_TV_DATA_LINK_HERE'; // เปลี่ยนเป็นลิงก์ไฟล์ทีวีของคุณ
 
     const TMDB_API_KEY = '76e168fecc79ddcf6d7fc58a0d86e30e';
     const TMDB_BASE_URL = 'https://api.themoviedb.org/3/search/multi';
@@ -150,19 +150,16 @@
     let currentCategory = 'all';
     let recentWatched = JSON.parse(localStorage.getItem('recentWatched') || '[]');
     let watchedEpisodes = JSON.parse(localStorage.getItem('watchedEpisodes') || '{}');
-    let isTvModeActive = false; // สถานะปลดล็อคหน้าทีวี
+    let isTvModeActive = false; 
 
-    // สลับโหลดหน้าทีวี
     function toggleTvMode() {
       if (isTvModeActive) {
-        // หากเปิดอยู่แล้ว ให้สลับกลับหน้าปกติ
         isTvModeActive = false;
         document.getElementById('tvModeBtn').innerHTML = "📺 สลับไปหน้าดูทีวี";
         document.getElementById('tvModeBtn').classList.remove('active');
         document.querySelector('h1').innerHTML = "🎬 รวมเว็บดูหนังซีรีส์";
         loadData(MOVIE_DATA_URL);
       } else {
-        // หากยังไม่ได้เปิด ให้เด้งหน้าต่างถามรหัสผ่าน
         document.getElementById('lockModalOverlay').style.display = 'flex';
         document.getElementById('tvPasswordInput').value = '';
         document.getElementById('tvPasswordInput').focus();
@@ -179,12 +176,10 @@
         isTvModeActive = true;
         closeLockModal();
         
-        // อัปเดต UI หน้าทีวีลับ
         document.getElementById('tvModeBtn').innerHTML = "❌ ออกจากหน้าทีวี";
         document.getElementById('tvModeBtn').classList.add('active');
         document.querySelector('h1').innerHTML = "📺 ระบบรับชมทีวีออนไลน์ (Premium)";
         
-        // ดึงข้อมูลชุดทีวี
         loadData(TV_DATA_URL);
         alert('🔓 ปลดล็อคหน้าดูทีวีเรียบร้อย!');
       } else {
@@ -202,9 +197,11 @@
       });
     }
 
+    // 💡 ปรับปรุง: ให้ใช้ค่า url ที่ส่งมาโดยตรง ไม่บังคับย้อนกลับไปที่ MOVIE_DATA_URL เสมอ
     async function fetchChannelData(url) {
       try {
-        const res = await fetch(url || MOVIE_DATA_URL);
+        const targetUrl = url || MOVIE_DATA_URL;
+        const res = await fetch(targetUrl);
         return await res.json();
       } catch (e) {
         console.error('โหลดข้อมูลล้มเหลว', e);
@@ -215,7 +212,6 @@
     // เริ่มต้นระบบครั้งแรก
     loadData(MOVIE_DATA_URL);
 
-    // --- ส่วนการทำงานฟังก์ชันเดิมของคุณคงอยู่ทั้งหมด ---
     function setCategory(cat) {
       currentCategory = cat;
       filterChannels();
@@ -275,7 +271,7 @@
         channels = allChannels
           .map(ch => {
             const rw = recentWatched.find(r => r.name === ch.name);
-            return { ...ch, views: savedViews[ch.name] || 0, logo: rw?.logo || `/proxy-image?url=${ch.logo}` };
+            return { ...ch, views: savedViews[ch.name] || 0, logo: rw?.logo || ch.logo };
           })
           .filter(c => c.views > 0);
         channels = uniqueByName(channels);
@@ -332,16 +328,20 @@
         const result = data.results?.[0] || null;
         if (!result) return null;
 
-        const creditRes = await fetch(`https://api.themoviedb.org/3/${result.media_type}/${result.id}/credits?api_key=${TMDB_API_KEY}&language=th-TH`);
-        const creditData = await creditRes.json();
-        result.castList = (creditData.cast || []).filter(actor => actor.profile_path).slice(0, 6).map(actor => ({
-          name: actor.name, profile: `https://image.tmdb.org/t/p/w185${actor.profile_path}`
-        }));
+        try {
+          const creditRes = await fetch(`https://api.themoviedb.org/3/${result.media_type}/${result.id}/credits?api_key=${TMDB_API_KEY}&language=th-TH`);
+          const creditData = await creditRes.json();
+          result.castList = (creditData.cast || []).filter(actor => actor.profile_path).slice(0, 6).map(actor => ({
+            name: actor.name, profile: `https://image.tmdb.org/t/p/w185${actor.profile_path}`
+          }));
+        } catch(e) { result.castList = []; }
 
-        const detailRes = await fetch(`https://api.themoviedb.org/3/${result.media_type}/${result.id}?api_key=${TMDB_API_KEY}&language=th-TH`);
-        const detailData = await detailRes.json();
-        result.runtime = detailData.runtime || null;
-        result.genres = detailData.genres?.map(g => g.name).join(', ') || '';
+        try {
+          const detailRes = await fetch(`https://api.themoviedb.org/3/${result.media_type}/${result.id}?api_key=${TMDB_API_KEY}&language=th-TH`);
+          const detailData = await detailRes.json();
+          result.runtime = detailData.runtime || null;
+          result.genres = detailData.genres?.map(g => g.name).join(', ') || '';
+        } catch(e) { result.genres = ''; }
 
         return result;
       } catch (e) { return null; }
@@ -353,13 +353,17 @@
       try {
         const tmdb = await fetchTmdbDetail(name);
         let rating = tmdb && typeof tmdb.vote_average === 'number' ? tmdb.vote_average : 0;
-        const color = rating >= 7 ? '#4ade80' : rating >= 4 ? '#facc15' : '#f87171';
-        badgeEl.textContent = `★ ${rating.toFixed(1)}`;
-        badgeEl.style.backgroundColor = color;
-        badgeEl.style.color = '#000';
+        if (rating > 0) {
+          const color = rating >= 7 ? '#4ade80' : rating >= 4 ? '#facc15' : '#f87171';
+          badgeEl.textContent = `★ ${rating.toFixed(1)}`;
+          badgeEl.style.backgroundColor = color;
+          badgeEl.style.color = '#000';
+          badgeEl.style.display = 'block';
+        } else {
+          badgeEl.style.display = 'none'; // ซ่อนคะแนนถ้าเป็นทีวีสดหรือไม่มีข้อมูล
+        }
       } catch (e) {
-        badgeEl.textContent = '★ 0.0';
-        badgeEl.style.backgroundColor = '#555';
+        badgeEl.style.display = 'none';
       }
     }
 
@@ -368,13 +372,14 @@
       const start = (page - 1) * PAGE_SIZE;
       const paged = channels.slice(start, start + PAGE_SIZE);
 
+      // 💡 ปรับปรุง: ลบ /proxy-imageออก (แสดงผลรูปตรงๆ) ป้องกันรูปไม่ขึ้นตอนทดสอบบน Local PC
       const html = `
         <div class="section-title">✨ ${isTvModeActive ? 'ช่องทีวีพรีเมียมออนไลน์' : 'ซีรีส์และหนัง'}</div>
         <div class="channel-list">
           ${paged.map((ch, idx) => `
             <div class="channel-card" onclick="onChannelClick(${start + idx})">
-              <img src="/proxy-image?url=${encodeURIComponent(ch.logo)}" alt="${ch.name}" onerror="this.onerror=null;this.src='${ch.logo}'"/>
-              <div class="rating-badge" id="rating-${start + idx}"></div>
+              <img src="${ch.logo}" alt="${ch.name}" onerror="this.onerror=null;this.src='https://placehold.co/140x210/1c1c1c/fff?text=No+Image'"/>
+              <div class="rating-badge" id="rating-${start + idx}" style="display:none;"></div>
               <div class="title">${ch.name} ${ch.ep ? `<div style="font-size:0.8em;color:#aaa;">EP ${ch.ep}</div>` : ''}</div>
             </div>
           `).join('')}
@@ -404,9 +409,7 @@
     }
 
     function gotoPage(page) { currentPage = page; renderChannelsPage(page); }
-    function renderRatingStars(rating) { return `<span style="color:#facc15;font-weight:bold">★ ${rating.toFixed(2)}</span>`; }
 
-    // ป๊อปอัพเรียกเล่น
     function showLoadingDialog() {
       document.getElementById('dialogContainer').innerHTML = `<div class="dialog-overlay"><div class="dialog"><h2>⌛ กำลังโหลดข้อมูลรายละเอียด...</h2></div></div>`;
     }
@@ -433,7 +436,7 @@
           <div class="dialog">
             <button class="close-btn" onclick="document.getElementById('dialogContainer').innerHTML=''">❌</button>
             <h2>${ch.name}</h2>
-            <p class="info">ประเภท: ${tmdb?.genres || 'ทีวีออนไลน์'}</p>
+            <p class="info">ประเภท: ${tmdb?.genres || (isTvModeActive ? 'ทีวีออนไลน์สด' : 'ทั่วไป')}</p>
             <p class="desc">${tmdb?.overview || 'รับชมความบันเทิงแบบสดๆ หรือตอนย้อนหลังได้ทันที'}</p>
             <div class="episode-list">${episodeButtons}</div>
           </div>
