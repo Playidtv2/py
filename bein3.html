@@ -1,141 +1,182 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <title>ดูบอลสด ดูบอลฟรี ดูบอลออนไลน์ รวมช่องถ่ายทอดสด วันนี้ | SCOREMUN</title>
-  <meta name="description" content="ดูบอลสดวันนี้ ดูบอลฟรี ดูบอลออนไลน์ รวมช่องถ่ายทอดสดครบ เลือกดูฟุตบอลได้ทันที รองรับมือถือและคอม ภาพชัด อัปเดตลิงก์ตลอดวัน">
-  <meta name="keywords" content="ดูบอล, ดูบอลสด, ดูบอลฟรี, ดูบอลออนไลน์, ดูฟุตบอล, ถ่ายทอดสดฟุตบอล, บอลสดวันนี้, รวมช่องถ่ายทอดสด, BEIN 1">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@~1/dist/hls.min.js"></script>
-
-  <link rel="stylesheet" href="https://cdn.vidstack.io/player/theme.css" />
-  <link rel="stylesheet" href="https://cdn.vidstack.io/player/video.css" />
-  <script src="https://cdn.vidstack.io/player" type="module"></script>
+<meta charset="UTF-8">
+<title>IPTV Dooball</title>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<style>
+    html, body { margin: 0; padding: 0; width: 100vw; height: 100vh; background-color: #000; overflow: hidden; font-family: sans-serif; }
+    #player-container { position: absolute; top: 0; bottom: 0; left: 0; right: 0; z-index: 1; }
+    video { width: 100%; height: 100%; object-fit: contain; background: #000; display: block; }
+    #watermark-logo { position: absolute; bottom: 60px; left: 20px; width: 120px; opacity: 0.6; pointer-events: none; z-index: 10; filter: drop-shadow(0 0 3px black); }
+    #live-overlay { position: absolute; top: 20px; left: 20px; z-index: 11; display: flex; align-items: center; pointer-events: none; }
+    .live-badge { background-color: #e60023; color: white; padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+    #status { background-color: rgba(0,0,0,0.6); color: #00ff00; padding: 4px 10px; border-radius: 4px; font-size: 14px; margin-left: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+    .spinner { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 60px; border: 5px solid rgba(255,255,255,0.2); border-top-color: #0096ff; border-radius: 50%; animation: spin 1s linear infinite; z-index: 15; display: none; }
+    @keyframes spin { from {transform: translate(-50%, -50%) rotate(0deg);} to {transform: translate(-50%, -50%) rotate(360deg);} }
+    
+    /* แก้ไขตรงนี้: เพิ่ม hidden ตั้งแต่เริ่มต้น */
+    .channel-list { position: absolute; top: 0; right: 0; width: 320px; height: 100%; background: rgba(0,0,0,0.85); color: white; overflow-y: auto; z-index: 20; transition: transform 0.4s, opacity 0.4s; backdrop-filter: blur(5px); }
+    .channel-list.hidden { transform: translateX(100%); opacity: 0; pointer-events: none; }
+    
+    .channel-item { display: flex; align-items: center; padding: 12px 20px; cursor: pointer; border-bottom: 1px solid rgba(255, 255, 255, 0.05); user-select: none; }
+    .channel-item:hover { background: rgba(255, 255, 255, 0.1); }
+    .channel-item.active { background: rgba(0, 150, 255, 0.25); border-left: 4px solid #0096ff; }
+    .channel-item img { width: 55px; height: 40px; margin-right: 15px; border-radius: 4px; object-fit: contain; background: rgba(255,255,255,0.1); }
+    .fav-btn { margin-left: auto; font-size: 1.3rem; color: #444; transition: color 0.2s; }
+    .fav-btn.active { color: gold; }
+</style>
 </head>
+<body>
 
-<body class="bg-zinc-900 text-white">
-
-  <div class="max-w-6xl mx-auto p-4 mt-4">
-    <h1 id="player-title" class="text-xl font-semibold mb-4 text-center sm:text-left">
-      กำลังรับชม: BEIN 1 ดูบอลออนไลน์
-    </h1>
-
-    <div class="rounded-xl overflow-hidden shadow-2xl bg-black aspect-video">
-      <media-player id="media-player" autoplay playsinline class="w-full h-full">
-        <media-provider></media-provider>
-        <media-video-layout></media-video-layout>
-      </media-player>
+<div id="player-container">
+    <div id="live-overlay">
+        <div class="live-badge">LIVE</div>
+        <div id="status"><span id="statusText">⏳ กำลังโหลด...</span></div>
     </div>
-  </div>
+    <video id="video" controls playsinline></video>
+    <img id="watermark-logo" src="https://xtream-fast.serv00.net/logo.png" alt="Logo">
+    <div class="spinner" id="spinner"></div>
+</div>
 
-  <hr class="border-zinc-800 my-6">
-
-  <div class="max-w-7xl mx-auto px-4 py-6">
-    <h2 class="text-2xl font-bold mb-6">ดูบอลสด ดูบอลฟรี ดูบอลออนไลน์</h2>
-
-    <h3 class="text-xl font-semibold mb-4 border-b border-zinc-700 pb-2 text-emerald-400">
-      ช่องกีฬาไทย
-    </h3>
-    <div class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
-      <button onclick="playChannel('BEIN 1', 'https://cdnsv1.cdncloudbot.com/goalmun/bein1/playlist.m3u8')" 
-              class="bg-zinc-800 hover:bg-zinc-700 active:scale-95 rounded-lg p-3 flex flex-col items-center transition cursor-pointer">
-        <img src="https://www.scoremun.com/channels-logo/bein1.png" class="h-12 mb-2 object-contain" alt="BEIN 1" loading="lazy">
-        <div class="text-sm text-center">BEIN 1</div>
-      </button>
-
-      <button onclick="playChannel('BEIN 2', 'https://cdnsv1.cdncloudbot.com/goalmun/bein2/playlist.m3u8')" 
-              class="bg-zinc-800 hover:bg-zinc-700 active:scale-95 rounded-lg p-3 flex flex-col items-center transition cursor-pointer">
-        <img src="https://www.scoremun.com/channels-logo/bein2.png" class="h-12 mb-2 object-contain" alt="BEIN 2" loading="lazy">
-        <div class="text-sm text-center">BEIN 2</div>
-      </button>
-
-      <button onclick="playChannel('BEIN 3', 'https://cdnsv1.cdncloudbot.com/goalmun/bein3/playlist.m3u8')" 
-              class="bg-zinc-800 hover:bg-zinc-700 active:scale-95 rounded-lg p-3 flex flex-col items-center transition cursor-pointer">
-        <img src="https://www.scoremun.com/channels-logo/bein3.png" class="h-12 mb-2 object-contain" alt="BEIN 3" loading="lazy">
-        <div class="text-sm text-center">BEIN 3</div>
-      </button>
-
-      <button onclick="playChannel('True Premier Football 3', 'https://cdnsv1.cdncloudbot.com/goalmun/tpf3/playlist.m3u8')" 
-              class="bg-zinc-800 hover:bg-zinc-700 active:scale-95 rounded-lg p-3 flex flex-col items-center transition cursor-pointer">
-        <img src="https://www.scoremun.com/channels-logo/truepremier3.png" class="h-12 mb-2 object-contain" alt="True Premier Football 3" loading="lazy">
-        <div class="text-sm text-center">True Premier 3</div>
-      </button>
-
-      <button onclick="playChannel('SPOTV 1', 'https://cdnsv1.cdncloudbot.com/goalmun/spotv1/playlist.m3u8')" 
-              class="bg-zinc-800 hover:bg-zinc-700 active:scale-95 rounded-lg p-3 flex flex-col items-center transition cursor-pointer">
-        <img src="https://www.scoremun.com/channels-logo/spotv1.png" class="h-12 mb-2 object-contain" alt="SPOTV 1" loading="lazy">
-        <div class="text-sm text-center">SPOTV 1</div>
-      </button>
+<!-- ใส่ class hidden ไว้ล่วงหน้าเพื่อให้ซ่อนตอนเปิดหน้าเว็บ -->
+<div class="channel-list hidden" id="sidebar">
+    <div style="padding: 15px 20px; font-weight: bold; border-bottom: 1px solid #333; display: flex; justify-content: space-between;">
+        <span>📺 เลือกช่องรายการ</span>
     </div>
+    <div id="channel-list-container"></div>
+</div>
 
-    <h3 class="text-xl font-semibold mb-4 border-b border-zinc-700 pb-2 text-sky-400">
-      ช่องดิจิตอลทีวี
-    </h3>
-    <div class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
-      <button onclick="playChannel('PPTV HD 36', 'https://cdnsv1.cdncloudbot.com/goalmun/pptv/playlist.m3u8')" 
-              class="bg-zinc-800 hover:bg-zinc-700 active:scale-95 rounded-lg p-3 flex flex-col items-center transition cursor-pointer">
-        <img src="https://www.scoremun.com/channels-logo/pptv.png" class="h-12 mb-2 object-contain" alt="PPTV" loading="lazy">
-        <div class="text-sm text-center">PPTV</div>
-      </button>
+<script>
+    const video = document.getElementById('video');
+    const statusText = document.getElementById('statusText');
+    const spinner = document.getElementById('spinner');
+    const sidebar = document.getElementById('sidebar');
+    
+    // ประกาศตัวแปรที่จำเป็นให้ครบถ้วนเพื่อป้องกันข้อผิดพลาด
+    const CURRENT_TOKEN = "your_default_token_here"; // แก้ไขทิชนี้ตามการใช้งานของคุณ
+    let hls = null, channels = [], activeSource = null;
+    let favorites = new Set(JSON.parse(localStorage.getItem('fav_dooball') || '[]'));
 
-      <button onclick="playChannel('Thairath TV', 'https://cdnsv1.cdncloudbot.com/goalmun/thairathtv/playlist.m3u8')" 
-              class="bg-zinc-800 hover:bg-zinc-700 active:scale-95 rounded-lg p-3 flex flex-col items-center transition cursor-pointer">
-        <img src="https://www.scoremun.com/channels-logo/thairath.png" class="h-12 mb-2 object-contain" alt="THAIRATH TV" loading="lazy">
-        <div class="text-sm text-center">THAIRATH TV</div>
-      </button>
-    </div>
-  </div>
-
-  <script>
-    // ฟังก์ชันสำหรับแปลง m3u8 URL ให้วิ่งผ่าน Proxy พร้อมใส่ Header Referer
-    functionกรองProxy(originalM3u8Url, licenseKey = '') {
-      const targetUrl = originalM3u8Url + (licenseKey ? "?wmsAuthSign=" + licenseKey : "");
-      
-      // ตัวอย่างการสร้าง Proxy URL โครงสร้างตามมาตรฐาน CORS Proxy ทั่วไป
-      // คุณสามารถเปลี่ยน 'https://your-proxy-service.com/proxy' เป็น Endpoint Proxy จริงของคุณได้เลยครับ
-      const proxyBase = "https://your-proxy-service.com/proxy"; 
-      
-      // ส่งค่าเป้าหมายและส่ง Referer ไปใน Query string เพื่อให้หลังบ้านนำไปสวม Header
-      return `${proxyBase}?url=${encodeURIComponent(targetUrl)}&referer=${encodeURIComponent("https://www.scoremun.com")}`;
+    async function loadChannels() {
+        try {
+            const res = await fetch('https://guflix.streaming-fast.com/proxy/web/ball66/channelsbk.json');
+            if (!res.ok) throw new Error('Network response was not ok');
+            channels = await res.json();
+            renderList();
+            if (channels.length > 0) startChannel(channels[0].source);
+        } catch(e) { 
+            statusText.innerText = '❌ โหลดช่องพลาด'; 
+            console.error(e);
+        }
     }
 
-    // ฟังก์ชันเปลี่ยนช่องและดึง Token ป้องกันสตรีมดับ
-    function playChannel(channelName, streamUrl) {
-      document.getElementById("player-title").innerText = `กำลังรับชม: ${channelName} ดูบอลออนไลน์`;
-
-      // ดึง Key อนุมัติสิทธิ์ (License) ก่อนเล่น
-      fetch("https://license.dooball66.xyz?_=" + Date.now())
-        .then(res => res.json())
-        .then(data => {
-          const finalStreamUrl = กรองProxy(streamUrl, data.license);
-          
-          // ส่ง URL ที่ผ่าน Proxy แล้วเข้าตัวเล่น Vidstack
-          document.getElementById("media-player").setAttribute("src", finalStreamUrl);
-        })
-        .catch(err => {
-          console.error("ไม่สามารถดึงข้อมูล License ได้:", err);
-          // หาก Fetch พัง ให้ลองเล่นแบบไม่มี Token ผ่าน Proxy
-          document.getElementById("media-player").setAttribute("src", กรองProxy(streamUrl));
+    function renderList() {
+        const container = document.getElementById('channel-list-container');
+        container.innerHTML = '';
+        
+        // จัดเรียงรายการ: ช่องโปรดอยู่บนสุด
+        [...channels].sort((a,b) => favorites.has(b.source) - favorites.has(a.source)).forEach(ch => {
+            const el = document.createElement('div');
+            el.className = `channel-item ${ch.source === activeSource ? 'active' : ''}`;
+            el.innerHTML = `<img src="${ch.logo || ''}" onerror="this.style.display='none'"> <span>${ch.name}</span><span class="fav-btn ${favorites.has(ch.source)?'active':''}">★</span>`;
+            
+            el.onclick = (e) => {
+                if(e.target.classList.contains('fav-btn')){
+                    e.stopPropagation(); // กันไม่ให้กดโดนเปลี่ยนช่อง
+                    favorites.has(ch.source) ? favorites.delete(ch.source) : favorites.add(ch.source);
+                    localStorage.setItem('fav_dooball', JSON.stringify([...favorites]));
+                    renderList();
+                } else {
+                    if (ch.source !== activeSource) startChannel(ch.source);
+                }
+            };
+            container.appendChild(el);
         });
     }
 
-    // สั่งให้เริ่มต้นมาเล่นช่อง BEIN 1 ทันทีเมื่อเปิดหน้าเว็บ
-    window.addEventListener('DOMContentLoaded', () => {
-      playChannel('BEIN 1', 'https://cdnsv1.cdncloudbot.com/goalmun/bein1/playlist.m3u8');
-    });
-  </script>
+    async function startChannel(source) {
+        activeSource = source; 
+        renderList();
+        spinner.style.display = 'block'; 
+        statusText.innerText = '🔄 กำลังค้นหาสัญญาณ...';
 
-  <script type="module">
-    const player = document.querySelector("media-player");
-    player.addEventListener("provider-change", (e) => {
-      if (e.detail?.type === "hls") {
-        e.detail.library = window.Hls;
-      }
-    });
-  </script>
+        const providers = ['lx-origin', 'vx-origin'];
+        const qualities = ['720', '480'];
+        let targetUrl = null;
+
+        // ค้นหาสัญญาณที่ใช้งานได้จริง (ใช้ HEAD request เพื่อความรวดเร็ว)
+        for (let p of providers) {
+            for (let q of qualities) {
+                let url = `https://love.sikoyo3159.workers.dev/${p}/${source}_${q}/playlist.m3u8`;
+                try {
+                    let res = await fetch(url, { method: 'HEAD' });
+                    if (res.ok) { targetUrl = url; break; }
+                } catch(e) { console.log(`ลิงก์ใช้งานไม่ได้: ${url}`); }
+            }
+            if (targetUrl) break;
+        }
+
+        if (!targetUrl) { 
+            statusText.innerText = '❌ สัญญาณไม่ว่าง'; 
+            spinner.style.display = 'none'; 
+            return; 
+        }
+
+        const encoded = btoa(targetUrl);
+        const streamUrl = `ball66.php?link=${encoded}&token=${CURRENT_TOKEN}`;
+
+        if (hls) {
+            hls.destroy();
+            hls = null;
+        }
+
+        // ตรวจสอบว่าเบราว์เซอร์รองรับ HLS.js หรือไม่ (เช่น Chrome, Firefox, PC)
+        if (Hls.isSupported()) {
+            hls = new Hls({
+                maxMaxBufferLength: 10 // ปรับความหน่วงให้เหมาะกับสตรีมสด
+            });
+            hls.loadSource(streamUrl);
+            hls.attachMedia(video);
+            hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                spinner.style.display = 'none';
+                statusText.innerText = '▶ ' + source;
+                video.play().catch(() => { video.muted = true; video.play(); });
+            });
+            hls.on(Hls.Events.ERROR, (event, data) => { 
+                if(data.fatal) {
+                    spinner.style.display = 'none';
+                    statusText.innerText = '❌ สตรีมเกิดข้อผิดพลาด';
+                } 
+            });
+        } 
+        // สำหรับเบราว์เซอร์ที่รองรับ HLS ในตัวอยู่แล้ว (เช่น Safari บน Mac หรือ iPhone)
+        else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = streamUrl;
+            video.addEventListener('loadedmetadata', () => {
+                spinner.style.display = 'none';
+                statusText.innerText = '▶ ' + source;
+                video.play().catch(() => { video.muted = true; video.play(); });
+            });
+        }
+    }
+
+    // ระบบจัดการการซ่อน-แสดง Sidebar อัตโนมัติเมื่อเมาส์ขยับ
+    let timer;
+    function showSidebar() {
+        sidebar.classList.remove('hidden');
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            sidebar.classList.add('hidden');
+        }, 4000); // ซ่อนหลังจากหยุดขยับเมาส์ 4 วินาที
+    }
+
+    window.onmousemove = showSidebar;
+    
+    // เริ่มทำงานครั้งแรก: โหลดช่องรายการ และตั้งเวลาซ่อน Sidebar ล่วงหน้า
+    loadChannels();
+    showSidebar(); 
+</script>
 
 </body>
 </html>
