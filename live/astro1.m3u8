@@ -1,5 +1,6 @@
 #EXTM3U
 #EXT-X-VERSION:3
 #EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=2800000
-http://line.iptvgoat.com/play/live.php?mac=00:1A:79:CB:38:8A&stream=1016544&extension=m3u8&play_token=
+https://cfd4.dfccfd.cfd/dbdn_x1/monomax1_480p/chunks.m3u8?nimblesessionid=24883407&wmsAuthSign=c2VydmVyX3RpbWU9NS8yMS8yMDI2IDI6NTI6MDYgUE0maGFzaF92YWx1ZT0wZkFGQWFPV0dGRjErTHdGd3E5dGZRPT0mdmFsaWRtaW51dGVzPTEmc3RybV9sZW49MjEmaWQ9MTc3OTM3NTEyNjgwNw==
+#http://line.iptvgoat.com/play/live.php?mac=00:1A:79:CB:38:8A&stream=1016544&extension=m3u8&play_token=
 #http://45.139.122.199:2095/play/live.php?mac=00:1A:79:B7:23:47&stream=115615&extension=m3u8
