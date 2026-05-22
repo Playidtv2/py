@@ -64,6 +64,7 @@ function convertEmbedToM3U8(embedUrl) {
   }
 }
 
+
 function generateM3U(seriesData) {
   let m3u = "#EXTM3U\n";
   const logo = seriesData.poster?.src || "";
@@ -132,7 +133,7 @@ let currentSourcePref = "main";
 
 async function main() {
   const params = new URLSearchParams(window.location.search);
-  const ids = params.get("ids")?.split(",") || ["the-matchmakers"];
+  const ids = params.get("ids")?.split(",") || ["maestra-strings-of-truth-2023"];
   currentSourcePref = params.get("source") || currentSourcePref;
   const output = document.getElementById("output");
   const sourceControls = document.getElementById("source-controls");
