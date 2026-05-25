@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>ดึง API</title>
+  <title> ระบบกำหนดเอง  ดึง  API</title>
   <style>
     body { font-family: Arial, sans-serif; background: #f9f9f9; padding: 20px; }
     pre { background: #222; color: #0f0; padding: 10px; overflow-x: auto; }
@@ -132,7 +132,7 @@ let currentSourcePref = "main";
 
 async function main() {
   const params = new URLSearchParams(window.location.search);
-  const ids = params.get("ids")?.split(",") || ["lfiling-for-love-2026"];
+  const ids = params.get("ids")?.split(",") || ["filing-for-love-2026"];
   currentSourcePref = params.get("source") || currentSourcePref;
   const output = document.getElementById("output");
   const sourceControls = document.getElementById("source-controls");
