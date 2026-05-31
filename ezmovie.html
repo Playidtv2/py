@@ -134,7 +134,7 @@
                 <div class="glass-panel p-3 rounded-2xl mb-4 flex flex-col gap-3">
                     <div class="relative">
                         <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-2.5 text-gray-500 text-xs"></i>
-                        <input type="text" id="search-input" placeholder="ค้นหากรองรายชื่อหนังในหน้านี้..." 
+                        <input type="text" id="search-input" oninput="filterMovies()" placeholder="ค้นหากรองรายชื่อหนังในหน้านี้..." 
                             class="w-full bg-[#0D1117] border border-[#2D333B] rounded-xl py-1.5 pl-9 pr-4 text-xs outline-none focus:border-[#58A6FF] transition text-[#C9D1D9]">
                     </div>
                     
@@ -160,21 +160,18 @@
 
     <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
     <script>
-        /* --- CONFIGURATION (อิงตามไฟล์ Next.js Proxy-ez หลังบ้านของคุณ) --- */
+        /* --- CONFIGURATION --- */
         const NEXT_PROXY = "/api/proxy-ez?url="; 
+        const STREAM_BASE = "https://stream.dookeela.xyz/hls/"; // กำหนด Base URL ตัวแปรที่ขาดหายไปไปหาเซิร์ฟเวอร์หลักสตรีม
         
         function useProxy(url) {
             return `${NEXT_PROXY}${encodeURIComponent(url)}`;
         }
 
-        const API_JWT      = "https://license.lkdapi.site/stream/jwt";
-        const API_TOKEN    = "https://license.lkdapi.site/stream/token";
-        const STREAM_BASE  = "https://live1.stream.liveplayback.net/dookeela/";
-
         let currentActiveBaseUrl = "https://ezmovie.movie/movies/social-18";
         let currentPage = 1;
         let fetchedMovies = [];
-        let finalM3uContent = ""; // เก็บโค้ดโครงสร้าง M3U ของหน้านั้นๆ
+        let finalM3uContent = ""; 
 
         const player = videojs('main-player', {
             controls: true,
@@ -209,6 +206,13 @@
             }
 
             currentActiveBaseUrl = inputUrl;
+            document.getElementById('page-display').innerText = `หน้า ${currentPage}`;
+            fetchEzMovieData();
+        }
+
+        function changePage(direction) {
+            currentPage += direction;
+            if (currentPage < 1) currentPage = 1;
             document.getElementById('page-display').innerText = `หน้า ${currentPage}`;
             fetchEzMovieData();
         }
@@ -333,16 +337,21 @@
             `).join('');
         }
 
-        /* --- M3U GENERATOR ENGINE (เหมือนฟังก์ชันใน page.tsx) --- */
+        /* --- CLIENT-SIDE SEARCH FILTER --- */
+        function filterMovies() {
+            const query = document.getElementById('search-input').value.toLowerCase().trim();
+            const filtered = fetchedMovies.filter(m => m.title.toLowerCase().includes(query) || m.id.toLowerCase().includes(query));
+            renderMovies(filtered);
+        }
+
+        /* --- M3U GENERATOR ENGINE --- */
         function generateM3UStructure(movies) {
             let m3uString = "#EXTM3U\n";
             
             movies.forEach(movie => {
-                // ผูกโครงสร้างเข้ากับลิงก์สตรีมแบบแปลง Token อัตโนมัติ (ผ่านสิทธิ์ dookeela)
-                // เพื่อให้ไฟล์ M3U สามารถนำไปแชร์เปิดกับแอปเล่นวิดีโอภายนอกได้ผ่านระบบสิทธิ์
                 m3uString += `#EXTINF:-1 tvg-logo="${movie.poster}",${movie.title}\n`;
-                // ตัวลิงก์ปลายทางชี้ไปที่ Proxy เพื่อความเสถียรของไฟล์เซกเมนต์ m3u8
-                m3uString += `http://localhost:3000${NEXT_PROXY}${encodeURIComponent(STREAM_BASE + movie.id + '/playlist.m3u8')}\n`;
+                // ชี้เป้าไปที่ URL ปลายทางสตรีมจำลองผ่านการเรียก Proxy
+                m3uString += `${window.location.origin}${useProxy(STREAM_BASE + movie.id + '/playlist.m3u8')}\n`;
             });
 
             finalM3uContent = m3uString;
@@ -360,7 +369,6 @@
             const element = document.createElement('a');
             element.href = URL.createObjectURL(blob);
             
-            // ตั้งชื่อไฟล์ตามเลขหน้าและหมวดหมู่ปัจจุบัน
             const categorySlug = currentActiveBaseUrl.split('/').filter(Boolean).pop() || "playlist";
             element.download = `ezmovie-${categorySlug}-page-${currentPage}.m3u`;
             
@@ -370,67 +378,41 @@
         }
 
         /* --- LIVE MEDIA PLAYER PROCESSOR --- */
-        async function playMovie(id, titleText) {
+        function playMovie(id, titleText) {
+            // อัปเดต UI แถบสกรีนการเลือก
             document.querySelectorAll('.movie-card').forEach(el => el.classList.remove('movie-active'));
             document.getElementById(`movie-${id}`)?.classList.add('movie-active');
 
-            const titleEl = document.getElementById('playing-title');
-            const statusEl = document.getElementById('playing-status');
+            // เปลี่ยนชื่อและสถานะหัวข้อบนหน้าเครื่องเล่น
+            document.getElementById('playing-title').innerText = titleText;
+            document.getElementById('playing-status').innerHTML = `<i class="fa-solid fa-spinner animate-spin text-[#58A6FF]"></i> กำลังเรียกขอสตรีมมิ่ง... M3U8 ID: ${id}`;
 
-            titleEl.innerText = titleText;
-            statusEl.innerHTML = `<i class="fa-solid fa-circle-notch animate-spin text-[#58A6FF]"></i> กำลังเรียกขอสิทธิ์รหัสลับรักษาความปลอดภัย (JWT Token)...`;
+            // ทำการสร้าง Target URL ชี้ตรงผ่าน Proxy หลังบ้านไปยังเซิร์ฟเวอร์ m3u8 ของ dookeela คลังหนัง
+            const targetM3u8Url = STREAM_BASE + id + '/playlist.m3u8';
+            const proxiedStreamUrl = useProxy(targetM3u8Url);
 
-            try {
-                // 1. เรียกขอ JWT สิทธิ์สตรีม
-                const jwtResponse = await fetch(useProxy(API_JWT));
-                if (!jwtResponse.ok) throw new Error("การขอรหัส Token จากระบบส่งสัญญาณผิดพลาด");
-                const jwtData = await jwtResponse.json();
-                const token = jwtData.token;
+            // โหลดและสั่งรันวิดีโอเข้า Video.js 
+            player.src({
+                src: proxiedStreamUrl,
+                type: 'application/x-mpegURL'
+            });
 
-                statusEl.innerHTML = `<i class="fa-solid fa-key text-yellow-500 animate-pulse"></i> กำลังเจรจารับเอกสารสิทธิ์เล่นวิดีโอ (License Key)...`;
-
-                // 2. นำ ID สื่อของ Ezmovie แลกสัญญาณ License
-                const licenseUrl = `${API_TOKEN}?app=dookeela&channel=${id}&token=${token}`;
-                const licenseResponse = await fetch(useProxy(licenseUrl));
-                if (!licenseResponse.ok) throw new Error("สถานีปฏิเสธการมอบใบอนุญาตสำหรับรายการเรื่องนี้");
-                const licenseData = await licenseResponse.json();
-                const license = licenseData.license;
-
-                // 3. ประกอบลิงก์เล่นไฟล์ .m3u8 สุดท้าย
-                const finalStreamUrl = `${STREAM_BASE}${id}/playlist.m3u8?wmsAuthSign=${license}`;
-
-                // 4. มอบค่าให้ Video Player เล่นผ่านตัวกรองหลังบ้านแก้ไขปัญหา CORS
-                player.src({
-                    src: useProxy(finalStreamUrl),
-                    type: 'application/x-mpegURL'
-                });
-
-                player.play();
-                statusEl.innerHTML = `<span class="text-green-400 font-mono font-bold flex items-center gap-1"><span class="w-2 h-2 bg-green-500 rounded-full"></span> STREAM ONLINE SUCCESS</span>`;
-
-            } catch (error) {
-                console.error("Pipeline breakdown error:", error);
-                statusEl.innerHTML = `<span class="text-red-400 font-mono font-bold"><i class="fa-solid fa-triangle-exclamation"></i> FAILED: ${error.message}</span>`;
-            }
+            player.ready(() => {
+                player.play()
+                    .then(() => {
+                        document.getElementById('playing-status').innerHTML = `<i class="fa-solid fa-circle-check text-green-400"></i> กำลังสตรีมออนไลน์ (Source: Proxy Remote)`;
+                    })
+                    .catch(error => {
+                        console.error("Playback failed: ", error);
+                        document.getElementById('playing-status').innerHTML = `<i class="fa-solid fa-circle-exclamation text-red-400"></i> ไม่สามารถเล่นได้ (สตรีมอาจเข้ารหัส Token หรือระบบหลังบ้านปฏิเสธขอบเขตโครงข่าย)`;
+                    });
+            });
         }
 
-        /* --- CONTROL PAGINATION CONTROLLER --- */
-        function changePage(direction) {
-            if (currentPage + direction < 1) return;
-            currentPage += direction;
-            document.getElementById('page-display').innerText = `หน้า ${currentPage}`;
-            fetchEzMovieData();
-        }
-
-        /* --- SEARCH LOCAL LISTENER --- */
-        document.getElementById('search-input').addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase();
-            const filtered = fetchedMovies.filter(m => m.title.toLowerCase().includes(query));
-            renderMovies(filtered);
-        });
-
-        // บังคับสแกนเรียกข้อมูลชุดแรกในทันทีที่หน้าจอพร้อมใช้งาน
-        submitCustomUrl();
+        // เริ่มต้นการดึงข้อมูลอัตโนมัติเมื่อหน้าเว็บพร้อมทำงานครั้งแรก
+        window.onload = () => {
+            submitCustomUrl();
+        };
     </script>
 </body>
 </html>
