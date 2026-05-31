@@ -162,7 +162,7 @@
     <script>
         /* --- CONFIGURATION --- */
         const NEXT_PROXY = "/api/proxy-ez?url="; 
-        const STREAM_BASE = "https://stream.dookeela.xyz/hls/"; // กำหนด Base URL ตัวแปรที่ขาดหายไปไปหาเซิร์ฟเวอร์หลักสตรีม
+        const STREAM_BASE = "https://vod1.stream25.com/"; // กำหนด Base URL ตัวแปรที่ขาดหายไปไปหาเซิร์ฟเวอร์หลักสตรีม
         
         function useProxy(url) {
             return `${NEXT_PROXY}${encodeURIComponent(url)}`;
@@ -351,7 +351,7 @@
             movies.forEach(movie => {
                 m3uString += `#EXTINF:-1 tvg-logo="${movie.poster}",${movie.title}\n`;
                 // ชี้เป้าไปที่ URL ปลายทางสตรีมจำลองผ่านการเรียก Proxy
-                m3uString += `${window.location.origin}${useProxy(STREAM_BASE + movie.id + '/playlist.m3u8')}\n`;
+                m3uString += `${window.location.origin}${useProxy(STREAM_BASE + movie.id + '/m3u8')}\n`;
             });
 
             finalM3uContent = m3uString;
@@ -388,7 +388,7 @@
             document.getElementById('playing-status').innerHTML = `<i class="fa-solid fa-spinner animate-spin text-[#58A6FF]"></i> กำลังเรียกขอสตรีมมิ่ง... M3U8 ID: ${id}`;
 
             // ทำการสร้าง Target URL ชี้ตรงผ่าน Proxy หลังบ้านไปยังเซิร์ฟเวอร์ m3u8 ของ dookeela คลังหนัง
-            const targetM3u8Url = STREAM_BASE + id + '/playlist.m3u8';
+            const targetM3u8Url = STREAM_BASE + id + '/m3u8';
             const proxiedStreamUrl = useProxy(targetM3u8Url);
 
             // โหลดและสั่งรันวิดีโอเข้า Video.js 
