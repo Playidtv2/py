@@ -3,51 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EZMOVIE - ADVANCED CUSTOM HARVESTER</title>
+    <title>EZMOVIE - HARVESTER & IPTV PLAYLIST CREATOR</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&family=Inter:wght@400;900&display=swap');
-        body { background-color: #0b0f19; color: #f1f5f9; font-family: 'Inter', 'Sarabun', sans-serif; }
-        .video-js { width: 100%; aspect-ratio: 16/9; border-radius: 16px; overflow: hidden; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Sarabun:wght@300;400;700&display=swap');
+        
+        body { 
+            background-color: #0A0C10; 
+            color: #C9D1D9; 
+            font-family: 'Inter', 'Sarabun', sans-serif; 
+        }
+        .video-js { 
+            width: 100%; 
+            aspect-ratio: 16/9; 
+            border-radius: 12px; 
+            overflow: hidden; 
+            border: 1px solid #2D333B;
+        }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
-        .glass-panel { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .movie-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .movie-card:hover { transform: translateY(-4px); border-color: #3b82f6; box-shadow: 0 10px 20px -10px rgba(59,130,246,0.3); }
-        .movie-active { border-color: #3b82f6 !important; background: rgba(59, 130, 246, 0.1); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #21262D; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #30363D; }
+        
+        .glass-panel { 
+            background: #161B22; 
+            border: 1px solid #2D333B; 
+        }
+        .movie-card { 
+            background: #0D1117;
+            border: 1px solid #21262D;
+            transition: all 0.2s ease; 
+        }
+        .movie-card:hover { 
+            border-color: #58A6FF; 
+            background: #161B22;
+        }
+        .movie-active { 
+            border-color: #58A6FF !important; 
+            background: rgba(88, 166, 255, 0.1); 
+        }
     </style>
 </head>
-<body class="min-h-screen">
+<body class="min-h-screen antialiased selection:bg-[#58A6FF] selection:text-black">
 
-    <nav class="border-b border-white/5 py-4 px-6 mb-6 glass-panel sticky top-0 z-50">
+    <nav class="border-b border-[#2D333B] py-4 px-6 mb-6 bg-[#161B22] sticky top-0 z-50">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-3 w-full md:w-auto">
-                <div class="w-10 h-10 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
-                    <i class="fa-solid fa-wand-magic-sparkles text-white"></i>
+                <div class="w-10 h-10 bg-[#21262D] border border-[#2D333B] rounded-xl flex items-center justify-center text-[#58A6FF] shadow-md">
+                    <i class="fa-solid fa-film text-lg"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl font-black tracking-tight text-white">EZMOVIE <span class="text-blue-500">DYNAMIC</span></h1>
-                    <p class="text-[10px] text-slate-400 uppercase tracking-widest">Custom URL Harvester Engine</p>
+                    <h1 class="text-lg font-bold tracking-tight text-[#F0F6FC]">EZMOVIE <span class="text-[#58A6FF]">HARVESTER</span></h1>
+                    <p class="text-[10px] text-gray-500 font-mono uppercase tracking-widest">M3U Playlist & Streaming Hub</p>
                 </div>
             </div>
             
             <div class="flex items-center gap-2 w-full md:w-auto justify-end">
-                <select id="quick-select" onchange="applyQuickUrl()" class="bg-slate-800 border border-white/10 rounded-xl px-3 py-2 text-sm text-white outline-none focus:border-blue-500">
-                    <option value="">-- เลือกทางลัดหมวดหมู่ --</option>
-                    <option value="https://ezmovie.movie/movies/social-18">Social 18+</option>
-                    <option value="https://ezmovie.movie/movies/action">Action (แอคชั่น)</option>
-                    <option value="https://ezmovie.movie/movies/comedy">Comedy (ตลก)</option>
-                    <option value="https://ezmovie.movie/movies/horror">Horror (สยองขวัญ)</option>
+                <select id="quick-select" onchange="applyQuickUrl()" class="bg-[#0D1117] border border-[#2D333B] rounded-xl px-3 py-2 text-xs text-[#C9D1D9] outline-none focus:border-[#58A6FF]">
+                    <option value="">-- ทางลัดหมวดหมู่ด่วน --</option>
+                    <option value="https://ezmovie.movie/movies/social-18">หมวดหมู่: Social 18+</option>
+                    <option value="https://ezmovie.movie/movies/action">หมวดหมู่: Action (แอคชั่น)</option>
+                    <option value="https://ezmovie.movie/movies/comedy">หมวดหมู่: Comedy (ตลก)</option>
+                    <option value="https://ezmovie.movie/movies/horror">หมวดหมู่: Horror (สยองขวัญ)</option>
                 </select>
 
-                <div id="status-indicator" class="text-xs font-bold text-slate-400 bg-black/40 px-3 py-2 rounded-xl border border-white/5 flex items-center gap-2 shrink-0">
-                    <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+                <div id="status-indicator" class="text-[11px] font-mono font-bold text-gray-400 bg-[#010409] px-3 py-2 rounded-xl border border-[#2D333B] flex items-center gap-2 shrink-0">
+                    <span class="w-2 h-2 bg-[#58A6FF] rounded-full animate-pulse"></span>
                     <span>READY</span>
                 </div>
             </div>
@@ -56,35 +81,51 @@
 
     <div class="max-w-7xl mx-auto px-4 md:px-6 pb-12">
         
-        <div class="glass-panel p-4 rounded-2xl mb-6 shadow-xl border border-white/5">
-            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">ระบุ URL หน้าเว็บ EzMovie ที่ต้องการดึงข้อมูล</label>
+        <div class="glass-panel p-4 rounded-2xl mb-6 shadow-lg">
+            <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2 font-mono">* วางลิงก์หมวดหมู่จากเว็บ EzMovie</label>
             <div class="flex flex-col sm:flex-row gap-3">
                 <div class="relative flex-1">
-                    <i class="fa-solid fa-link absolute left-4 top-3.5 text-slate-400"></i>
+                    <i class="fa-solid fa-link absolute left-4 top-3.5 text-gray-500 text-xs"></i>
                     <input type="text" id="custom-url-input" 
                         value="https://ezmovie.movie/movies/social-18"
-                        placeholder="วาง URL เช่น https://ezmovie.movie/movies/social-18 หรือหน้าอื่นๆ..." 
-                        class="w-full bg-black/40 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-sm text-white outline-none focus:border-blue-500 transition font-mono">
+                        placeholder="เช่น https://ezmovie.movie/movies/social-18" 
+                        class="w-full bg-[#0D1117] border border-[#2D333B] rounded-xl py-2.5 pl-10 pr-4 text-xs text-[#F0F6FC] outline-none focus:border-[#58A6FF] transition font-mono">
                 </div>
-                <button onclick="submitCustomUrl()" class="bg-blue-600 hover:bg-blue-500 px-6 py-3 rounded-xl text-white font-bold text-sm transition shrink-0 flex items-center justify-center gap-2 shadow-lg shadow-blue-500/10">
-                    <i class="fa-solid fa-satellite-dish"></i> ดึงข้อมูลจากคลัง
+                <button onclick="submitCustomUrl()" class="bg-[#21262D] hover:bg-[#30363D] border border-[#2D333B] px-5 py-2.5 rounded-xl text-[#58A6FF] font-bold text-xs transition shrink-0 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-satellite-dish"></i> ดึงรายการหนัง
                 </button>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
-            <div class="lg:col-span-7 xl:col-span-8">
-                <div class="glass-panel rounded-3xl p-3 shadow-2xl border border-white/5">
+            <div class="lg:col-span-7 xl:col-span-8 space-y-6">
+                <div class="glass-panel rounded-2xl p-3 shadow-xl">
                     <video id="main-player" class="video-js vjs-big-play-centered vjs-fluid"></video>
                 </div>
                 
-                <div class="mt-6 glass-panel p-6 rounded-2xl relative overflow-hidden">
-                    <div class="absolute top-0 left-0 w-1.5 h-full bg-blue-500"></div>
-                    <h2 id="playing-title" class="text-xl font-bold text-white truncate">เลือกภาพยนตร์เพื่อรับชม</h2>
-                    <p id="playing-status" class="text-slate-400 text-xs mt-2 flex items-center gap-2">
-                        <i class="fa-solid fa-info-circle text-blue-400"></i> ระบบจะนำ ID ภาพยนตร์ที่ตรวจพบไปเข้าสิทธิ์แลกสตรีมเพื่อรับชมทันที
-                    </p>
+                <div class="glass-panel p-5 rounded-2xl relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-[#58A6FF]"></div>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div class="overflow-hidden flex-1">
+                            <h2 id="playing-title" class="text-base font-bold text-[#F0F6FC] truncate">กรุณาเลือกภาพยนตร์เพื่อรับชม</h2>
+                            <p id="playing-status" class="text-gray-400 text-[11px] mt-1 font-mono flex items-center gap-1.5">
+                                <i class="fa-solid fa-circle-info text-[#58A6FF]"></i> รองรับการแปลงสัญญาณเป็นสตรีมผ่าน License ของคลัง dookeela
+                            </p>
+                        </div>
+                        
+                        <button onclick="downloadCurrentPageM3U()" class="px-4 py-2 bg-[#58A6FF] hover:bg-blue-400 text-[#0A0C10] font-bold text-xs font-mono rounded-xl transition-colors inline-flex items-center gap-1.5 shrink-0 shadow-md">
+                            <i class="fa-solid fa-download"></i>
+                            <span>DOWNLOAD PAGE M3U</span>
+                        </button>
+                    </div>
+
+                    <div class="mt-4 pt-4 border-t border-[#2D333B]">
+                        <div class="flex justify-between items-center mb-1.5">
+                            <span class="text-[10px] font-mono text-gray-500 uppercase tracking-wider">M3U Structure Preview (รายการภาพยนตร์ทั้งหมดในหน้านี้):</span>
+                        </div>
+                        <pre id="m3u-preview" class="block bg-[#010409] text-[#7EE787] p-3 text-[10px] leading-relaxed rounded-xl border border-[#2D333B] max-h-32 overflow-auto font-mono custom-scrollbar">#EXTM3U&#10;(กดปุ่มด้านบนเพื่อดาวน์โหลดไฟล์เพลย์ลิสต์ .m3u)</pre>
+                    </div>
                 </div>
             </div>
 
@@ -92,24 +133,24 @@
                 
                 <div class="glass-panel p-3 rounded-2xl mb-4 flex flex-col gap-3">
                     <div class="relative">
-                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-2.5 text-slate-400 text-xs"></i>
-                        <input type="text" id="search-input" placeholder="กรองค้นหาหนังในหน้านี้..." 
-                            class="w-full bg-black/30 border border-white/5 rounded-xl py-2 pl-9 pr-4 text-xs outline-none focus:border-blue-500 transition">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-2.5 text-gray-500 text-xs"></i>
+                        <input type="text" id="search-input" placeholder="ค้นหากรองรายชื่อหนังในหน้านี้..." 
+                            class="w-full bg-[#0D1117] border border-[#2D333B] rounded-xl py-1.5 pl-9 pr-4 text-xs outline-none focus:border-[#58A6FF] transition text-[#C9D1D9]">
                     </div>
                     
-                    <div class="flex items-center justify-between border-t border-white/5 pt-2">
-                        <span class="text-[11px] font-bold text-slate-400">การควบคุมหน้า:</span>
-                        <div class="flex items-center bg-black/40 border border-white/5 rounded-lg px-1">
-                            <button onclick="changePage(-1)" class="p-1.5 hover:text-blue-500 transition text-slate-400"><i class="fa-solid fa-chevron-left text-[10px]"></i></button>
-                            <span id="page-display" class="text-[11px] font-mono font-bold px-2 text-blue-400">หน้า 1</span>
-                            <button onclick="changePage(1)" class="p-1.5 hover:text-blue-500 transition text-slate-400"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>
+                    <div class="flex items-center justify-between border-t border-[#2D333B] pt-2">
+                        <span class="text-[11px] font-bold text-gray-400 font-mono">การควบคุมหน้า:</span>
+                        <div class="flex items-center bg-[#010409] border border-[#2D333B] rounded-lg px-1">
+                            <button onclick="changePage(-1)" class="p-1.5 hover:text-[#58A6FF] transition text-gray-400"><i class="fa-solid fa-chevron-left text-[10px]"></i></button>
+                            <span id="page-display" class="text-[11px] font-mono font-bold px-3 text-[#58A6FF]">หน้า 1</span>
+                            <button onclick="changePage(1)" class="p-1.5 hover:text-[#58A6FF] transition text-gray-400"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>
                         </div>
                     </div>
                 </div>
 
-                <div id="movie-container" class="flex-1 overflow-y-auto custom-scrollbar space-y-3 pr-1">
-                    <div class="text-center py-20 text-slate-500">
-                        <p class="text-sm">ระบุลิงก์ด้านบนแล้วกดปุ่ม "ดึงข้อมูลจากคลัง"</p>
+                <div id="movie-container" class="flex-1 overflow-y-auto custom-scrollbar space-y-2 pr-1">
+                    <div class="text-center py-20 text-gray-500 text-xs font-mono">
+                        <p>กรุณาระบุลิงก์ต้นทางระบบเพื่อเริ่มงานสแกน</p>
                     </div>
                 </div>
             </div>
@@ -119,15 +160,13 @@
 
     <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
     <script>
-        /* --- CONFIGURATION --- */
-        // เชื่อมต่อเข้ากับ Next.js API Proxy หลังบ้านตามไฟล์ route.ts ของคุณ
+        /* --- CONFIGURATION (อิงตามไฟล์ Next.js Proxy-ez หลังบ้านของคุณ) --- */
         const NEXT_PROXY = "/api/proxy-ez?url="; 
         
         function useProxy(url) {
             return `${NEXT_PROXY}${encodeURIComponent(url)}`;
         }
 
-        // เพิ่มตัวแปร Token และปลายทางสตรีมมิ่งสดที่ขาดหายไปเพื่อให้ระบบ Player ทำงานได้
         const API_JWT      = "https://license.lkdapi.site/stream/jwt";
         const API_TOKEN    = "https://license.lkdapi.site/stream/token";
         const STREAM_BASE  = "https://live1.stream.liveplayback.net/dookeela/";
@@ -135,6 +174,7 @@
         let currentActiveBaseUrl = "https://ezmovie.movie/movies/social-18";
         let currentPage = 1;
         let fetchedMovies = [];
+        let finalM3uContent = ""; // เก็บโค้ดโครงสร้าง M3U ของหน้านั้นๆ
 
         const player = videojs('main-player', {
             controls: true,
@@ -142,7 +182,6 @@
             fluid: true
         });
 
-        /* --- APPLY QUICK SHORTCUTS --- */
         function applyQuickUrl() {
             const select = document.getElementById('quick-select');
             if (select.value) {
@@ -151,25 +190,22 @@
             }
         }
 
-        /* --- TRIGGERS CUSTOM SCALING --- */
         function submitCustomUrl() {
             let inputUrl = document.getElementById('custom-url-input').value.trim();
             if (!inputUrl) return;
 
-            // ตรวจสอบและตัดแต่งในกรณีที่ผู้ใช้ใส่เครื่องหมาย ?page= ติดมาด้วยในลิงก์หลัก
             try {
                 const urlObj = new URL(inputUrl);
                 const pageParam = urlObj.searchParams.get('page');
                 if (pageParam) {
                     currentPage = parseInt(pageParam) || 1;
                     urlObj.searchParams.delete('page');
-                    // อัพเดตค่า Base URL ปลอด Parameter หน้า
                     inputUrl = urlObj.toString().replace(urlObj.search, "");
                 } else {
                     currentPage = 1;
                 }
             } catch (e) {
-                console.warn("URL Parsing fallback triggered.");
+                console.warn("URL Parse handler fallback active.");
             }
 
             currentActiveBaseUrl = inputUrl;
@@ -177,29 +213,27 @@
             fetchEzMovieData();
         }
 
-        /* --- SCRAPER HARVESTER LOGIC --- */
+        /* --- HARVESTER & HTML PARSING ENGINE --- */
         async function fetchEzMovieData() {
             const container = document.getElementById('movie-container');
             const indicator = document.getElementById('status-indicator');
             
             container.innerHTML = `
-                <div class="text-center py-20 text-slate-500">
-                    <i class="fa-solid fa-circle-notch animate-spin text-3xl text-blue-500 mb-3"></i>
-                    <p class="text-xs">กำลังสแกนโครงสร้างหน้า...</p>
-                    <p class="text-[10px] text-slate-600 mt-1 truncate max-w-full font-mono px-4">${currentActiveBaseUrl}</p>
+                <div class="text-center py-20 text-gray-500">
+                    <i class="fa-solid fa-circle-notch animate-spin text-lg text-[#58A6FF] mb-2"></i>
+                    <p class="text-[11px] font-mono">กำลังสแกนโครงสร้างหน้าด้วย API Proxy...</p>
                 </div>`;
             
-            indicator.innerHTML = `<span class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span> SCROLLING...`;
+            indicator.innerHTML = `<span class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span> PROCESSING...`;
 
             try {
                 const separator = currentActiveBaseUrl.includes('?') ? '&' : '?';
                 const finalScrapeTarget = `${currentActiveBaseUrl}${separator}page=${currentPage}`;
 
                 const response = await fetch(useProxy(finalScrapeTarget));
-                if (!response.ok) throw new Error(`เซิร์ฟเวอร์ตอบกลับรหัสผิดพลาด: ${response.status}`);
+                if (!response.ok) throw new Error(`Status error code: ${response.status}`);
                 
                 const htmlText = await response.text();
-                
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(htmlText, 'text/html');
                 
@@ -229,6 +263,7 @@
                     }
                 });
 
+                // Fallback Scanner
                 if (fetchedMovies.length === 0) {
                     const allLinks = doc.querySelectorAll('a[href*="/movie/"], a[href*="/movies/"]');
                     const uniqueSlugs = new Set();
@@ -256,52 +291,85 @@
                 }
 
                 renderMovies(fetchedMovies);
-                indicator.innerHTML = `<span class="w-2 h-2 bg-green-500 rounded-full"></span> HARVESTED (${fetchedMovies.length})`;
+                generateM3UStructure(fetchedMovies);
+                indicator.innerHTML = `<span class="w-2 h-2 bg-[#58A6FF] rounded-full"></span> HARVESTED (${fetchedMovies.length})`;
 
             } catch (error) {
-                console.error("Harvester failure:", error);
+                console.error("Harvester operation failed:", error);
                 container.innerHTML = `
-                    <div class="text-center py-10 text-red-400 text-xs px-4">
-                        <i class="fa-solid fa-circle-exclamation text-2xl mb-2"></i>
-                        <p>ดึงข้อมูลภาพยนตร์ล้มเหลว</p>
-                        <p class="text-[10px] text-slate-500 mt-2 font-mono bg-black/30 p-2 rounded border border-white/5">${error.message}</p>
+                    <div class="text-center py-10 text-red-400 text-xs px-2 font-mono">
+                        <i class="fa-solid fa-triangle-exclamation text-xl mb-2"></i>
+                        <p>เกิดข้อผิดพลาดในการกวาดข้อมูล</p>
+                        <p class="text-[10px] text-gray-500 mt-1">${error.message}</p>
                     </div>`;
-                indicator.innerHTML = `<span class="w-2 h-2 bg-red-500 rounded-full"></span> OFFLINE`;
+                indicator.innerHTML = `<span class="w-2 h-2 bg-red-500 rounded-full"></span> ERROR`;
             }
         }
 
-        /* --- RENDER ARRAY DATA TO UI --- */
+        /* --- RENDER CARD ELEMENTS TO UI --- */
         function renderMovies(movies) {
             const container = document.getElementById('movie-container');
             if (movies.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-20 text-slate-500 text-xs px-4">
-                        <i class="fa-solid fa-folder-open text-xl mb-2 block text-slate-600"></i>
-                        ไม่พบภาพยนตร์ในหน้านี้ หรือโครงสร้างหน้าเว็บไม่ตรงกับรูปแบบคลังสแกน
-                    </div>`;
+                container.innerHTML = `<div class="text-center py-20 text-gray-500 text-xs font-mono">ไม่พบข้อมูลภาพยนตร์ในหน้านี้</div>`;
                 return;
             }
 
             container.innerHTML = movies.map(movie => `
                 <div onclick="playMovie('${movie.id}', '${movie.title.replace(/'/g, "\\'")}')" 
                      id="movie-${movie.id}"
-                     class="movie-card glass-panel p-3 rounded-xl flex items-center gap-4 cursor-pointer border border-white/5 group">
-                    <div class="w-14 h-20 bg-slate-800 rounded-lg overflow-hidden flex-shrink-0 shadow-md">
-                        <img src="${movie.poster}" class="w-full h-full object-cover group-hover:scale-110 transition duration-300" 
-                             onerror="this.src='https://placehold.co/120x180?text=NO+IMAGE'">
+                     class="movie-card p-2.5 rounded-xl flex items-center gap-3 cursor-pointer group">
+                    <div class="w-11 h-16 bg-[#161B22] rounded-lg overflow-hidden flex-shrink-0 border border-[#2D333B]">
+                        <img src="${movie.poster}" class="w-full h-full object-cover group-hover:scale-105 transition duration-200" 
+                             onerror="this.src='https://placehold.co/100x150?text=NO+IMAGE'">
                     </div>
                     <div class="flex-1 overflow-hidden">
-                        <h4 class="font-bold text-sm text-slate-200 group-hover:text-blue-400 transition truncate">${movie.title}</h4>
-                        <span class="text-[10px] font-mono text-slate-500 block mt-1">ID: ${movie.id}</span>
+                        <h4 class="font-bold text-xs text-[#C9D1D9] group-hover:text-[#58A6FF] transition truncate">${movie.title}</h4>
+                        <span class="text-[9px] font-mono text-gray-500 block mt-1">ID: ${movie.id}</span>
                     </div>
-                    <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-blue-600 group-hover:text-white transition shadow-sm">
-                        <i class="fa-solid fa-play text-xs ml-0.5"></i>
+                    <div class="w-7 h-7 rounded-full bg-[#161B22] border border-[#2D333B] flex items-center justify-center text-gray-400 group-hover:bg-[#21262D] group-hover:text-[#58A6FF] transition shrink-0">
+                        <i class="fa-solid fa-play text-[10px] ml-0.5"></i>
                     </div>
                 </div>
             `).join('');
         }
 
-        /* --- STEAM AUTHORIZATION & PLAYBACK --- */
+        /* --- M3U GENERATOR ENGINE (เหมือนฟังก์ชันใน page.tsx) --- */
+        function generateM3UStructure(movies) {
+            let m3uString = "#EXTM3U\n";
+            
+            movies.forEach(movie => {
+                // ผูกโครงสร้างเข้ากับลิงก์สตรีมแบบแปลง Token อัตโนมัติ (ผ่านสิทธิ์ dookeela)
+                // เพื่อให้ไฟล์ M3U สามารถนำไปแชร์เปิดกับแอปเล่นวิดีโอภายนอกได้ผ่านระบบสิทธิ์
+                m3uString += `#EXTINF:-1 tvg-logo="${movie.poster}",${movie.title}\n`;
+                // ตัวลิงก์ปลายทางชี้ไปที่ Proxy เพื่อความเสถียรของไฟล์เซกเมนต์ m3u8
+                m3uString += `http://localhost:3000${NEXT_PROXY}${encodeURIComponent(STREAM_BASE + movie.id + '/playlist.m3u8')}\n`;
+            });
+
+            finalM3uContent = m3uString;
+            document.getElementById('m3u-preview').textContent = m3uString;
+        }
+
+        /* --- FILE DOWNLOAD CONTROLLER --- */
+        function downloadCurrentPageM3U() {
+            if (!finalM3uContent || fetchedMovies.length === 0) {
+                alert("ไม่มีข้อมูลเพลย์ลิสต์ที่จะดาวน์โหลดในขณะนี้");
+                return;
+            }
+            
+            const blob = new Blob([finalM3uContent], { type: 'text/plain;charset=utf-8' });
+            const element = document.createElement('a');
+            element.href = URL.createObjectURL(blob);
+            
+            // ตั้งชื่อไฟล์ตามเลขหน้าและหมวดหมู่ปัจจุบัน
+            const categorySlug = currentActiveBaseUrl.split('/').filter(Boolean).pop() || "playlist";
+            element.download = `ezmovie-${categorySlug}-page-${currentPage}.m3u`;
+            
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+        }
+
+        /* --- LIVE MEDIA PLAYER PROCESSOR --- */
         async function playMovie(id, titleText) {
             document.querySelectorAll('.movie-card').forEach(el => el.classList.remove('movie-active'));
             document.getElementById(`movie-${id}`)?.classList.add('movie-active');
@@ -310,43 +378,43 @@
             const statusEl = document.getElementById('playing-status');
 
             titleEl.innerText = titleText;
-            statusEl.innerHTML = `<i class="fa-solid fa-circle-notch animate-spin text-blue-400"></i> สื่อสารระบบความปลอดภัย (JWT Token)...`;
+            statusEl.innerHTML = `<i class="fa-solid fa-circle-notch animate-spin text-[#58A6FF]"></i> กำลังเรียกขอสิทธิ์รหัสลับรักษาความปลอดภัย (JWT Token)...`;
 
             try {
-                // 1. ขอสิทธิ์ JWT Token 
+                // 1. เรียกขอ JWT สิทธิ์สตรีม
                 const jwtResponse = await fetch(useProxy(API_JWT));
-                if (!jwtResponse.ok) throw new Error("การพิสูจน์ตัวตนผ่าน JWT ปลายทางล้มเหลว");
+                if (!jwtResponse.ok) throw new Error("การขอรหัส Token จากระบบส่งสัญญาณผิดพลาด");
                 const jwtData = await jwtResponse.json();
                 const token = jwtData.token;
 
-                statusEl.innerHTML = `<i class="fa-solid fa-key text-yellow-400 animate-pulse"></i> ทำการแมปปิ้ง ID ออกใบอนุญาต (License)...`;
+                statusEl.innerHTML = `<i class="fa-solid fa-key text-yellow-500 animate-pulse"></i> กำลังเจรจารับเอกสารสิทธิ์เล่นวิดีโอ (License Key)...`;
 
-                // 2. นำ ID สื่อสกัดได้จาก EzMovie ไปผูกรับรหัสสตรีมสิทธิ์การเล่น
+                // 2. นำ ID สื่อของ Ezmovie แลกสัญญาณ License
                 const licenseUrl = `${API_TOKEN}?app=dookeela&channel=${id}&token=${token}`;
                 const licenseResponse = await fetch(useProxy(licenseUrl));
-                if (!licenseResponse.ok) throw new Error("เครื่องแม่ข่ายเซ็นสิทธิ์ตอบปฏิเสธช่องนี้");
+                if (!licenseResponse.ok) throw new Error("สถานีปฏิเสธการมอบใบอนุญาตสำหรับรายการเรื่องนี้");
                 const licenseData = await licenseResponse.json();
                 const license = licenseData.license;
 
-                // 3. รวมเส้นทางไฟล์ M3U8 ตัวสุดท้าย
+                // 3. ประกอบลิงก์เล่นไฟล์ .m3u8 สุดท้าย
                 const finalStreamUrl = `${STREAM_BASE}${id}/playlist.m3u8?wmsAuthSign=${license}`;
 
-                // 4. บรรจุ URL เข้าตัวเล่นผ่านระบบแปลง Proxy ป้องกันปัญหาบล็อกไฟล์ย่อย (.ts) และ CORS
+                // 4. มอบค่าให้ Video Player เล่นผ่านตัวกรองหลังบ้านแก้ไขปัญหา CORS
                 player.src({
                     src: useProxy(finalStreamUrl),
                     type: 'application/x-mpegURL'
                 });
 
                 player.play();
-                statusEl.innerHTML = `<span class="text-green-400 font-bold flex items-center gap-1.5"><span class="w-2.5 h-2.5 bg-green-500 rounded-full animate-ping"></span> สตรีมวิดีโอสดออนไลน์สมบูรณ์</span>`;
+                statusEl.innerHTML = `<span class="text-green-400 font-mono font-bold flex items-center gap-1"><span class="w-2 h-2 bg-green-500 rounded-full"></span> STREAM ONLINE SUCCESS</span>`;
 
             } catch (error) {
-                console.error("Playback pipeline error:", error);
-                statusEl.innerHTML = `<span class="text-red-400 font-bold"><i class="fa-solid fa-circle-exclamation"></i> ความผิดพลาด: ${error.message}</span>`;
+                console.error("Pipeline breakdown error:", error);
+                statusEl.innerHTML = `<span class="text-red-400 font-mono font-bold"><i class="fa-solid fa-triangle-exclamation"></i> FAILED: ${error.message}</span>`;
             }
         }
 
-        /* --- CONTROL PAGINATION --- */
+        /* --- CONTROL PAGINATION CONTROLLER --- */
         function changePage(direction) {
             if (currentPage + direction < 1) return;
             currentPage += direction;
@@ -354,14 +422,14 @@
             fetchEzMovieData();
         }
 
-        /* --- LIVE LOCAL SEARCH FILTER --- */
+        /* --- SEARCH LOCAL LISTENER --- */
         document.getElementById('search-input').addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase();
             const filtered = fetchedMovies.filter(m => m.title.toLowerCase().includes(query));
             renderMovies(filtered);
         });
 
-        // สั่งให้โหลดสแกนอัตโนมัติรอบแรกเมื่อเปิดหน้าขึ้นมา
+        // บังคับสแกนเรียกข้อมูลชุดแรกในทันทีที่หน้าจอพร้อมใช้งาน
         submitCustomUrl();
     </script>
 </body>
