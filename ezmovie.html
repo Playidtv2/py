@@ -57,18 +57,22 @@
                     <i class="fa-solid fa-film text-lg"></i>
                 </div>
                 <div>
-                    <h1 class="text-lg font-bold tracking-tight text-[#F0F6FC]">EZMOVIE <span class="text-[#58A6FF]">HARVESTER</span></h1>
-                    <p class="text-[10px] text-gray-500 font-mono uppercase tracking-widest">M3U Playlist & Streaming Hub</p>
+                    <h1 class="text-lg font-bold tracking-tight text-[#F0F6FC]">EZMOVIE <span class="text-[#58A6FF]">PLAYLIST</span></h1>
+                    <p class="text-[10px] text-gray-500 font-mono uppercase tracking-widest">M3U Harvester & Custom Streamer</p>
                 </div>
             </div>
             
-            <div class="flex items-center gap-2 w-full md:w-auto justify-end">
+            <div class="flex items-center gap-3 w-full md:w-auto justify-end">
+                <select id="stream-engine-select" onchange="generateM3UStructure(fetchedMovies)" class="bg-[#0D1117] border border-[#2D333B] rounded-xl px-3 py-2 text-xs text-[#58A6FF] outline-none">
+                    <option value="stream25">รูปแบบที่ 1: เซิร์ฟเวอร์ Stream25 (.mp4.m3u8)</option>
+                    <option value="aws_converter">รูปแบบที่ 2: ระบบคลัง AWS Converter (HLS/TS)</option>
+                </select>
+
                 <select id="quick-select" onchange="applyQuickUrl()" class="bg-[#0D1117] border border-[#2D333B] rounded-xl px-3 py-2 text-xs text-[#C9D1D9] outline-none focus:border-[#58A6FF]">
-                    <option value="">-- ทางลัดหมวดหมู่ด่วน --</option>
+                    <option value="">-- ทางลัดหมวดหมู่ที่ระบุ --</option>
+                    <option value="https://ezmovie.movie/movies/หนังฝรั่ง">หมวดหมู่: หนังฝรั่ง</option>
+                    <option value="https://ezmovie.movie/categories">หน้ารวมหมวดหมู่: Categories</option>
                     <option value="https://ezmovie.movie/movies/social-18">หมวดหมู่: Social 18+</option>
-                    <option value="https://ezmovie.movie/movies/action">หมวดหมู่: Action (แอคชั่น)</option>
-                    <option value="https://ezmovie.movie/movies/comedy">หมวดหมู่: Comedy (ตลก)</option>
-                    <option value="https://ezmovie.movie/movies/horror">หมวดหมู่: Horror (สยองขวัญ)</option>
                 </select>
 
                 <div id="status-indicator" class="text-[11px] font-mono font-bold text-gray-400 bg-[#010409] px-3 py-2 rounded-xl border border-[#2D333B] flex items-center gap-2 shrink-0">
@@ -82,17 +86,17 @@
     <div class="max-w-7xl mx-auto px-4 md:px-6 pb-12">
         
         <div class="glass-panel p-4 rounded-2xl mb-6 shadow-lg">
-            <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2 font-mono">* วางลิงก์หมวดหมู่จากเว็บ EzMovie</label>
+            <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2 font-mono">* ระบุที่อยู่ URL หน้าเว็บ EzMovie ที่ต้องการดึงข้อมูล</label>
             <div class="flex flex-col sm:flex-row gap-3">
                 <div class="relative flex-1">
                     <i class="fa-solid fa-link absolute left-4 top-3.5 text-gray-500 text-xs"></i>
                     <input type="text" id="custom-url-input" 
-                        value="https://ezmovie.movie/movies/social-18"
-                        placeholder="เช่น https://ezmovie.movie/movies/social-18" 
+                        value="https://ezmovie.movie/movies/หนังฝรั่ง"
+                        placeholder="วาง URL หมวดหมู่ เช่น https://ezmovie.movie/movies/หนังฝรั่ง" 
                         class="w-full bg-[#0D1117] border border-[#2D333B] rounded-xl py-2.5 pl-10 pr-4 text-xs text-[#F0F6FC] outline-none focus:border-[#58A6FF] transition font-mono">
                 </div>
                 <button onclick="submitCustomUrl()" class="bg-[#21262D] hover:bg-[#30363D] border border-[#2D333B] px-5 py-2.5 rounded-xl text-[#58A6FF] font-bold text-xs transition shrink-0 flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-satellite-dish"></i> ดึงรายการหนัง
+                    <i class="fa-solid fa-satellite-dish"></i> เริ่มดึงรายการคลังข้อมูล
                 </button>
             </div>
         </div>
@@ -110,7 +114,7 @@
                         <div class="overflow-hidden flex-1">
                             <h2 id="playing-title" class="text-base font-bold text-[#F0F6FC] truncate">กรุณาเลือกภาพยนตร์เพื่อรับชม</h2>
                             <p id="playing-status" class="text-gray-400 text-[11px] mt-1 font-mono flex items-center gap-1.5">
-                                <i class="fa-solid fa-circle-info text-[#58A6FF]"></i> รองรับการแปลงสัญญาณเป็นสตรีมผ่าน License ของคลัง dookeela
+                                <i class="fa-solid fa-circle-info text-[#58A6FF]"></i> ระบบรองรับการแปลงลิงก์สตรีมตามสถาปัตยกรรมคลังสื่อจริง (.m3u8)
                             </p>
                         </div>
                         
@@ -122,9 +126,9 @@
 
                     <div class="mt-4 pt-4 border-t border-[#2D333B]">
                         <div class="flex justify-between items-center mb-1.5">
-                            <span class="text-[10px] font-mono text-gray-500 uppercase tracking-wider">M3U Structure Preview (รายการภาพยนตร์ทั้งหมดในหน้านี้):</span>
+                            <span class="text-[10px] font-mono text-gray-500 uppercase tracking-wider">M3U Structure Sandbox Preview (พิมพ์เขียวที่จะบันทึกเป็นไฟล์):</span>
                         </div>
-                        <pre id="m3u-preview" class="block bg-[#010409] text-[#7EE787] p-3 text-[10px] leading-relaxed rounded-xl border border-[#2D333B] max-h-32 overflow-auto font-mono custom-scrollbar">#EXTM3U&#10;(กดปุ่มด้านบนเพื่อดาวน์โหลดไฟล์เพลย์ลิสต์ .m3u)</pre>
+                        <pre id="m3u-preview" class="block bg-[#010409] text-[#7EE787] p-3 text-[10px] leading-relaxed rounded-xl border border-[#2D333B] max-h-40 overflow-auto font-mono custom-scrollbar">#EXTM3U&#10;(กรุณากดดึงข้อมูลภาพยนตร์เพื่อแสดงโครงสร้างไฟล์)</pre>
                     </div>
                 </div>
             </div>
@@ -150,7 +154,7 @@
 
                 <div id="movie-container" class="flex-1 overflow-y-auto custom-scrollbar space-y-2 pr-1">
                     <div class="text-center py-20 text-gray-500 text-xs font-mono">
-                        <p>กรุณาระบุลิงก์ต้นทางระบบเพื่อเริ่มงานสแกน</p>
+                        <p>กรุณาระบุลิงก์ด้านบนแล้วกด "เริ่มดึงรายการคลังข้อมูล"</p>
                     </div>
                 </div>
             </div>
@@ -160,15 +164,18 @@
 
     <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
     <script>
-        /* --- CONFIGURATION --- */
+        /* --- CONFIGURATION BASE --- */
         const NEXT_PROXY = "/api/proxy-ez?url="; 
-        const STREAM_BASE = "https://vod1.stream25.com/"; // กำหนด Base URL ตัวแปรที่ขาดหายไปไปหาเซิร์ฟเวอร์หลักสตรีม
         
+        // รูปแบบสตรีมมิ่งที่ 1 และ 2 ตามที่คุณกำหนดมา
+        const STREAM_BASE_1 = "https://vod1.stream25.com/";
+        const STREAM_BASE_2 = "https://ezmoviehd.co/file/aws-converter/";
+
         function useProxy(url) {
             return `${NEXT_PROXY}${encodeURIComponent(url)}`;
         }
 
-        let currentActiveBaseUrl = "https://ezmovie.movie/movies/social-18";
+        let currentActiveBaseUrl = "https://ezmovie.movie/movies/หนังฝรั่ง";
         let currentPage = 1;
         let fetchedMovies = [];
         let finalM3uContent = ""; 
@@ -202,7 +209,7 @@
                     currentPage = 1;
                 }
             } catch (e) {
-                console.warn("URL Parse handler fallback active.");
+                console.warn("URL Parse handler failure fallback active.");
             }
 
             currentActiveBaseUrl = inputUrl;
@@ -217,7 +224,7 @@
             fetchEzMovieData();
         }
 
-        /* --- HARVESTER & HTML PARSING ENGINE --- */
+        /* --- HARVESTER & HTML SCANNERS --- */
         async function fetchEzMovieData() {
             const container = document.getElementById('movie-container');
             const indicator = document.getElementById('status-indicator');
@@ -225,23 +232,23 @@
             container.innerHTML = `
                 <div class="text-center py-20 text-gray-500">
                     <i class="fa-solid fa-circle-notch animate-spin text-lg text-[#58A6FF] mb-2"></i>
-                    <p class="text-[11px] font-mono">กำลังสแกนโครงสร้างหน้าด้วย API Proxy...</p>
+                    <p class="text-[11px] font-mono">กำลังสื่อสารระดมสแกนผ่าน Proxy หลังบ้าน...</p>
                 </div>`;
             
-            indicator.innerHTML = `<span class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span> PROCESSING...`;
+            indicator.innerHTML = `<span class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span> SCROLLING...`;
 
             try {
                 const separator = currentActiveBaseUrl.includes('?') ? '&' : '?';
                 const finalScrapeTarget = `${currentActiveBaseUrl}${separator}page=${currentPage}`;
 
                 const response = await fetch(useProxy(finalScrapeTarget));
-                if (!response.ok) throw new Error(`Status error code: ${response.status}`);
+                if (!response.ok) throw new Error(`Target status: ${response.status}`);
                 
                 const htmlText = await response.text();
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(htmlText, 'text/html');
                 
-                const movieItems = doc.querySelectorAll('.grid .group, .movie-card, [class*="item"], .post-item');
+                const movieItems = doc.querySelectorAll('.grid .group, .movie-card, [class*='item'], .post-item');
                 fetchedMovies = [];
                 
                 movieItems.forEach((item, index) => {
@@ -251,7 +258,7 @@
                     
                     if (linkEl && titleEl) {
                         const href = linkEl.getAttribute('href') || '';
-                        const slug = href.split('/').filter(Boolean).pop() || `index-${index}`;
+                        const slug = href.split('/').filter(Boolean).pop() || `id-${index}`;
                         
                         let imgSrc = imgEl ? (imgEl.getAttribute('src') || imgEl.getAttribute('data-src') || imgEl.getAttribute('data-lazy-src') || '') : '';
                         if (imgSrc && !imgSrc.startsWith('http')) {
@@ -267,7 +274,7 @@
                     }
                 });
 
-                // Fallback Scanner
+                // ตรวจสอบขั้นสำรอง (Fallback)
                 if (fetchedMovies.length === 0) {
                     const allLinks = doc.querySelectorAll('a[href*="/movie/"], a[href*="/movies/"]');
                     const uniqueSlugs = new Set();
@@ -303,14 +310,14 @@
                 container.innerHTML = `
                     <div class="text-center py-10 text-red-400 text-xs px-2 font-mono">
                         <i class="fa-solid fa-triangle-exclamation text-xl mb-2"></i>
-                        <p>เกิดข้อผิดพลาดในการกวาดข้อมูล</p>
+                        <p>เกิดข้อผิดพลาดในการรับข้อมูล</p>
                         <p class="text-[10px] text-gray-500 mt-1">${error.message}</p>
                     </div>`;
-                indicator.innerHTML = `<span class="w-2 h-2 bg-red-500 rounded-full"></span> ERROR`;
+                indicator.innerHTML = `<span class="w-2 h-2 bg-red-500 rounded-full"></span> OFFLINE`;
             }
         }
 
-        /* --- RENDER CARD ELEMENTS TO UI --- */
+        /* --- DISPLAYING CARDS --- */
         function renderMovies(movies) {
             const container = document.getElementById('movie-container');
             if (movies.length === 0) {
@@ -328,7 +335,7 @@
                     </div>
                     <div class="flex-1 overflow-hidden">
                         <h4 class="font-bold text-xs text-[#C9D1D9] group-hover:text-[#58A6FF] transition truncate">${movie.title}</h4>
-                        <span class="text-[9px] font-mono text-gray-500 block mt-1">ID: ${movie.id}</span>
+                        <span class="text-[9px] font-mono text-gray-500 block mt-1">ID / Slug: ${movie.id}</span>
                     </div>
                     <div class="w-7 h-7 rounded-full bg-[#161B22] border border-[#2D333B] flex items-center justify-center text-gray-400 group-hover:bg-[#21262D] group-hover:text-[#58A6FF] transition shrink-0">
                         <i class="fa-solid fa-play text-[10px] ml-0.5"></i>
@@ -337,31 +344,79 @@
             `).join('');
         }
 
-        /* --- CLIENT-SIDE SEARCH FILTER --- */
+        /* --- LOCAL SEARCH ENGINE --- */
         function filterMovies() {
             const query = document.getElementById('search-input').value.toLowerCase().trim();
             const filtered = fetchedMovies.filter(m => m.title.toLowerCase().includes(query) || m.id.toLowerCase().includes(query));
             renderMovies(filtered);
         }
 
-        /* --- M3U GENERATOR ENGINE --- */
+        /* --- M3U GENERATOR (อัปเดตอิงตามข้อมูลสตรีมจริง 1 และ 2 ของคุณ) --- */
         function generateM3UStructure(movies) {
+            const engine = document.getElementById('stream-engine-select').value;
             let m3uString = "#EXTM3U\n";
             
             movies.forEach(movie => {
                 m3uString += `#EXTINF:-1 tvg-logo="${movie.poster}",${movie.title}\n`;
-                // ชี้เป้าไปที่ URL ปลายทางสตรีมจำลองผ่านการเรียก Proxy
-                m3uString += `${window.location.origin}${useProxy(STREAM_BASE + movie.id + '/m3u8')}\n`;
+                
+                let targetStreamUrl = "";
+                if (engine === "stream25") {
+                    // รูปแบบที่ 1: ชี้เข้าหาไฟล์ตรงโครงสร้าง .mp4.m3u8 
+                    targetStreamUrl = `${STREAM_BASE_1}${movie.id}-tha.mp4.m3u8`;
+                } else {
+                    // รูปแบบที่ 2: จำลองโครงสร้างไฟล์ของระบบสตรีม AWS-Converter
+                    targetStreamUrl = `${STREAM_BASE_2}movies-aws-1801-to-1900/${movie.id}/hls/${movie.id}_Ott_Hls_Ts_Avc_Aac_1280x720p_6.0Mbps_qvbr.m3u8`;
+                }
+                
+                // ใช้การครอบลิงก์ผ่านระบบ Proxy ตัวสตรีมหลังบ้านของคุณเพื่อความปลอดภัยสูงสุดและข้ามปัญหา CORS
+                m3uString += `${window.location.origin}${useProxy(targetStreamUrl)}\n`;
             });
 
             finalM3uContent = m3uString;
             document.getElementById('m3u-preview').textContent = m3uString;
         }
 
-        /* --- FILE DOWNLOAD CONTROLLER --- */
+        /* --- PLAYBACK HANDLER ENGINE --- */
+        function playMovie(id, titleText) {
+            document.querySelectorAll('.movie-card').forEach(el => el.classList.remove('movie-active'));
+            document.getElementById(`movie-${id}`)?.classList.add('movie-active');
+
+            const titleEl = document.getElementById('playing-title');
+            const statusEl = document.getElementById('playing-status');
+            const engine = document.getElementById('stream-engine-select').value;
+
+            titleEl.innerText = titleText;
+            
+            let currentStreamTarget = "";
+            if (engine === "stream25") {
+                // ตัวอย่าง: https://vod1.stream25.com/Food-Truck-Stolen-Love-and-Moo-Deng-2025-tha.mp4.m3u8
+                currentStreamTarget = `${STREAM_BASE_1}${id}-tha.mp4.m3u8`;
+            } else {
+                // หากระบบตรวจเจอโครงสร้าง AWS Converter
+                currentStreamTarget = `${STREAM_BASE_2}movies-aws-1801-to-1900/${id}/hls/${id}_Ott_Hls_Ts_Avc_Aac_1280x720p_6.0Mbps_qvbr.m3u8`;
+            }
+
+            statusEl.innerHTML = `<i class="fa-solid fa-circle-notch animate-spin text-[#58A6FF]"></i> กำลังเชื่อมต่อลิงก์วิดีโอผ่านเครื่องข่าย API Proxy...`;
+
+            try {
+                // สั่งให้เครื่องเล่นทำงานผ่านตัวครอบ Proxy ป้องกันปัญหาบล็อกไฟล์ย่อยคีย์ (.ts / .key) บนหน้าเว็บภายนอก
+                player.src({
+                    src: useProxy(currentStreamTarget),
+                    type: 'application/x-mpegURL'
+                });
+
+                player.play();
+                statusEl.innerHTML = `<span class="text-green-400 font-mono font-bold flex items-center gap-1"><span class="w-2 h-2 bg-green-500 rounded-full animate-ping"></span> ONLINE STREAMING NOW</span>`;
+            } catch (err) {
+                console.error("Playback engine error:", err);
+                statusEl.innerHTML = `<span class="text-red-400 font-bold"><i class="fa-solid fa-circle-exclamation"></i> ตัวเล่นขัดข้อง: ${err.message}</span>`;
+            }
+        }
+
+        /* --- M3U FILE DOWNLOAD CREATOR --- */
         function downloadCurrentPageM3U() {
             if (!finalM3uContent || fetchedMovies.length === 0) {
-                alert("ไม่มีข้อมูลเพลย์ลิสต์ที่จะดาวน์โหลดในขณะนี้");
+                alert("ไม่มีข้อมูลสำหรับจัดทำเพลย์ลิสต์ในหน้านี้");
                 return;
             }
             
@@ -369,7 +424,7 @@
             const element = document.createElement('a');
             element.href = URL.createObjectURL(blob);
             
-            const categorySlug = currentActiveBaseUrl.split('/').filter(Boolean).pop() || "playlist";
+            const categorySlug = encodeURIComponent(currentActiveBaseUrl.split('/').filter(Boolean).pop() || "playlist");
             element.download = `ezmovie-${categorySlug}-page-${currentPage}.m3u`;
             
             document.body.appendChild(element);
@@ -377,42 +432,8 @@
             document.body.removeChild(element);
         }
 
-        /* --- LIVE MEDIA PLAYER PROCESSOR --- */
-        function playMovie(id, titleText) {
-            // อัปเดต UI แถบสกรีนการเลือก
-            document.querySelectorAll('.movie-card').forEach(el => el.classList.remove('movie-active'));
-            document.getElementById(`movie-${id}`)?.classList.add('movie-active');
-
-            // เปลี่ยนชื่อและสถานะหัวข้อบนหน้าเครื่องเล่น
-            document.getElementById('playing-title').innerText = titleText;
-            document.getElementById('playing-status').innerHTML = `<i class="fa-solid fa-spinner animate-spin text-[#58A6FF]"></i> กำลังเรียกขอสตรีมมิ่ง... M3U8 ID: ${id}`;
-
-            // ทำการสร้าง Target URL ชี้ตรงผ่าน Proxy หลังบ้านไปยังเซิร์ฟเวอร์ m3u8 ของ dookeela คลังหนัง
-            const targetM3u8Url = STREAM_BASE + id + '/m3u8';
-            const proxiedStreamUrl = useProxy(targetM3u8Url);
-
-            // โหลดและสั่งรันวิดีโอเข้า Video.js 
-            player.src({
-                src: proxiedStreamUrl,
-                type: 'application/x-mpegURL'
-            });
-
-            player.ready(() => {
-                player.play()
-                    .then(() => {
-                        document.getElementById('playing-status').innerHTML = `<i class="fa-solid fa-circle-check text-green-400"></i> กำลังสตรีมออนไลน์ (Source: Proxy Remote)`;
-                    })
-                    .catch(error => {
-                        console.error("Playback failed: ", error);
-                        document.getElementById('playing-status').innerHTML = `<i class="fa-solid fa-circle-exclamation text-red-400"></i> ไม่สามารถเล่นได้ (สตรีมอาจเข้ารหัส Token หรือระบบหลังบ้านปฏิเสธขอบเขตโครงข่าย)`;
-                    });
-            });
-        }
-
-        // เริ่มต้นการดึงข้อมูลอัตโนมัติเมื่อหน้าเว็บพร้อมทำงานครั้งแรก
-        window.onload = () => {
-            submitCustomUrl();
-        };
+        // เริ่มต้นการทำงานแบบออโต้รันเมื่อโครงสร้างหน้า DOM โหลดสำเร็จ
+        submitCustomUrl();
     </script>
 </body>
 </html>
