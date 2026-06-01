@@ -535,7 +535,7 @@
         // --- เพิ่มฟังก์ชันจัดการสับเปลี่ยนลิ้งก์ให้วิ่งผ่าน CORS Proxy ---
         function getProxiedUrl(originalUrl) {
             // ⚠️ ปรับเปลี่ยน URL ตรงนี้ให้ตรงกับ Domain ของโฮสต์ที่รัน proxy.js ของคุณ
-            const PROXY_ENDPOINT = "https://aisplay.playidlive.workers.dev/proxy?url=";
+            const PROXY_ENDPOINT = "/proxy?url=";
             
             // ดักจับลิ้งก์ที่มักติดสิทธิ์ CORS หรือต้องการ Spoofing Header (เช่น AIS Play หรือค่ายอื่น)
             if (originalUrl.includes("ais-vidnt.com") || originalUrl.includes("playid3-secure") || originalUrl.includes(".m3u8")) {
