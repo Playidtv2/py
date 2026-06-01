@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PLAYID3 - Next-Gen IPTV & VOD Console</title>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <title>PLAYID3 - Ultimate IPTV & VOD Console</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght=300;400;500;600&display=swap" rel="stylesheet">
     
+    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+
     <style>
         :root {
             --primary-glow: #DFD600;
@@ -52,17 +55,17 @@
         }
 
         /* --- Tabs Navigator --- */
-        .nav-tabs { display: flex; gap: 10px; }
+        .nav-tabs { display: flex; gap: 12px; }
 
         .tab-btn {
             background: rgba(255,255,255,0.03);
             border: 1px solid var(--border-color);
             color: var(--text-sub);
-            padding: 10px 12px;
-            border-radius: 15px;
+            padding: 10px 22px;
+            border-radius: 30px;
             cursor: pointer;
             font-family: 'Prompt', sans-serif;
-            font-size: 16px;
+            font-size: 14px;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -76,7 +79,7 @@
 
         .main-content {
             flex: 1;
-            padding: 15px 40px;
+            padding: 30px 40px;
             box-sizing: border-box;
         }
 
@@ -120,8 +123,8 @@
         }
 
         .item-card img {
-            width: 85px;
-            height: 85px;
+            width: 75px;
+            height: 75px;
             object-fit: contain;
             margin-bottom: 12px;
             border-radius: 12px;
@@ -136,7 +139,6 @@
             text-overflow: ellipsis;
         }
 
-        /* Loading Spinner */
         .loading-text {
             color: var(--text-sub);
             font-size: 14px;
@@ -164,13 +166,20 @@
         .video-wrapper {
             position: relative;
             width: 100%;
-            padding-top: 56.25%; /* 16:9 */
+            background: #000;
         }
 
-        video {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
+        .video-wrapper video {
+            width: 100%;
+            max-height: 70vh;
+            display: block;
             object-fit: contain;
+        }
+
+        .video-js {
+            width: 100% !important;
+            height: 500px !important;
+            max-height: 70vh;
         }
 
         .theatre-controls {
@@ -321,26 +330,27 @@
         .modal-body {
             background: #0f0f1d;
             border: 1px solid var(--border-color);
-            padding: 40px;
+            padding: 35px;
             border-radius: 24px;
             width: 90%;
-            max-width: 460px;
+            max-width: 520px;
             text-align: center;
         }
 
         .player-group-title {
-            text-align: left;
             font-size: 13px;
             color: var(--primary-glow);
-            margin: 15px 0 5px 0;
+            text-align: left;
+            margin: 15px 0 8px 0;
             font-weight: 500;
+            letter-spacing: 0.5px;
         }
 
         .player-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin: 10px 0 20px 0;
+            gap: 12px;
+            margin-bottom: 15px;
         }
 
         .p-opt {
@@ -351,21 +361,25 @@
             border-radius: 12px;
             cursor: pointer;
             font-family: 'Prompt', sans-serif;
+            font-size: 13px;
             transition: 0.2s;
+            text-align: left;
             display: flex;
             flex-direction: column;
-            align-items: center;
         }
 
-        .p-opt span { font-size: 13px; font-weight: 500; }
-        .p-opt small { font-size: 10px; color: var(--text-sub); margin-top: 2px; }
+        .p-opt small {
+            color: var(--text-sub);
+            font-size: 11px;
+            margin-top: 2px;
+        }
 
         .p-opt:hover, .p-opt.active {
             border-color: var(--primary-glow);
             background: var(--card-hover);
         }
         .p-opt.active {
-            box-shadow: inset 0 0 8px rgba(223, 214, 0, 0.2);
+            box-shadow: inset 0 0 10px rgba(223, 214, 0, 0.2);
         }
 
         @media (max-width: 1024px) {
@@ -378,14 +392,16 @@
 
     <div class="app-container">
         <header>
-            <div class="logo">PLAYID STREAM</div>
+            <div class="logo">PLAYID3 MULTIVERSE</div>
             <div class="nav-tabs">
-                <button id="btn-tv-tab" class="tab-btn active" onclick="switchMainTab('tv-tab')">📺 ทีวีออนไลน์</button>
-                <button id="btn-movies-tab" class="tab-btn" onclick="switchMainTab('movies-tab')">⚽ บอลสด</button>
+                <button class="tab-btn active" onclick="switchMainTab('tv-tab')">📺 ทีวีออนไลน์</button>
+                <button class="tab-btn" onclick="switchMainTab('movies-tab')">🎬 ภาพยนตร์</button>
+                <button class="tab-btn" onclick="switchMainTab('series-tab')">🍿 ซีรีส์ </button>
             </div>
         </header>
 
         <div class="main-content">
+            
             <div id="theatreView" class="theatre-layout">
                 <div class="video-box-wrapper">
                     <div class="video-container">
@@ -496,13 +512,10 @@
     <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
 
     <script>
-        // Reverse Engineering Proxy Core Handler
-        const PROXY = '/api/proxy?url=';
-
         const PLAYLISTS = {
             tv: "https://dl.dropbox.com/scl/fi/oxnleuyz1jgd3vrefaq3v/licencempd.txt?rlkey=47a9p9coqw3hu0rw793s847sm&st=c32frsak&dl=0",
-            movies: "https://de.ufile.eu.org/ppv_m3u.php",
-            series: ""
+            movies: "https://dl.dropbox.com/scl/fi/vnu8fp676lzk97klnw0pv/JAV_BACKUP.m3u?rlkey=rk7m78n0yk5p7ki3wtbof98tg&st=bvugn2b1&dl=0",
+            series: "https://dl.dropbox.com/scl/fi/oxnleuyz1jgd3vrefaq3v/licencempd.txt?rlkey=47a9p9coqw3hu0rw793s847sm&st=c32frsak&dl=0"
         };
 
         let globalLiveTvData = {}; 
@@ -516,14 +529,22 @@
 
         let currentPlayingUrl = '';
         let currentPlaylistContext = []; 
+
         let instances = { hls: null, dash: null, videojs: null, clappr: null, plyr: null };
 
-        // --- Initialize Engine On Load ---
-        document.addEventListener("DOMContentLoaded", () => {
-            loadAllPlaylists();
-        });
+        // --- เพิ่มฟังก์ชันจัดการสับเปลี่ยนลิ้งก์ให้วิ่งผ่าน CORS Proxy ---
+        function getProxiedUrl(originalUrl) {
+            // ⚠️ ปรับเปลี่ยน URL ตรงนี้ให้ตรงกับ Domain ของโฮสต์ที่รัน proxy.js ของคุณ
+            const PROXY_ENDPOINT = "https://aisplay.playidlive.workers.dev/proxy?url=";
+            
+            // ดักจับลิ้งก์ที่มักติดสิทธิ์ CORS หรือต้องการ Spoofing Header (เช่น AIS Play หรือค่ายอื่น)
+            if (originalUrl.includes("ais-vidnt.com") || originalUrl.includes("playid3-secure") || originalUrl.includes(".m3u8")) {
+                return PROXY_ENDPOINT + encodeURIComponent(originalUrl);
+            }
+            return originalUrl;
+        }
 
-        // --- 1. Playlist Processing Pipeline ---
+        // --- 1. ระบบจัดการข้อมูลเพลย์ลิสต์ ---
         async function loadAllPlaylists() {
             loadWatchHistory();
             renderHistoryGrid();
@@ -533,19 +554,19 @@
                 parsePlaylistToStore(text, 'tv');
                 renderTvInterface();
                 renderSidebarQuickMenu();
-            } catch(e) { console.error("TV Loader Error:", e); }
+            } catch(e) { console.error("TV Error", e); }
 
             try {
                 let text = await fetchTextData(PLAYLISTS.movies);
                 parsePlaylistToStore(text, 'movies');
                 renderMoviesInterface();
-            } catch(e) { console.error("Movies Loader Error:", e); }
+            } catch(e) { console.error("Movies Error", e); }
 
             try {
                 let text = await fetchTextData(PLAYLISTS.series);
                 parsePlaylistToStore(text, 'series');
                 renderSeriesInterface();
-            } catch(e) { console.error("Series Loader Error:", e); }
+            } catch(e) { console.error("Series Error", e); }
         }
 
         async function fetchTextData(url) {
@@ -592,7 +613,7 @@
             }
         }
 
-        // --- 2. Local History Cache Engine ---
+        // --- 2. ระบบประวัติการรับชม ---
         function loadWatchHistory() {
             const saved = localStorage.getItem('playid3_history');
             if (saved) watchHistory = JSON.parse(saved);
@@ -625,15 +646,16 @@
             watchHistory = []; localStorage.removeItem('playid3_history'); renderHistoryGrid();
         }
 
-        // --- 3. UI Template Generators ---
+        // --- 3. UI Controllers ---
         function switchMainTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.section-view').forEach(view => view.classList.remove('active'));
-            
-            document.getElementById('btn-' + tabId).classList.add('active');
+            event.target.classList.add('active');
             document.getElementById(tabId).classList.add('active');
             closeTheatreMode();
         }
+
+        if (window.showChannelsInCategory === undefined) { window.showChannelsInCategory = function() {}; }
 
         function renderTvInterface() {
             const tvContainer = document.getElementById('liveTvCategoriesContainer');
@@ -696,7 +718,7 @@
             }
         }
 
-        // --- 4. Core Multi-Library Engine Logic ---
+        // --- 4. Core Multi-Library Engine (ระบบเล่นสตรีมมิ่ง) ---
         function launchStreamingTheatre(item, contextPlaylist) {
             document.querySelectorAll('.section-view').forEach(view => view.style.display = 'none');
             document.getElementById('theatreView').style.display = 'grid';
@@ -723,9 +745,8 @@
 
             playlistArray.forEach(media => {
                 const row = document.createElement('div');
-                const rowId = "side-row-" + btoa(encodeURIComponent(media.url)).replace(/=/g, '');
                 row.className = `sidebar-row ${media.url === selectUrl ? 'active' : ''}`;
-                row.id = rowId;
+                row.id = "side-row-" + btoa(encodeURIComponent(media.url)).replace(/=/g, '');
                 row.innerHTML = `<img src="${media.logo}" onerror="this.src='https://via.placeholder.com/150/121220/ffffff?text=PLAY'"><div><div style="font-size:13px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:240px;">${media.name}</div><small style="color:var(--text-sub)">${media.format.toUpperCase()}</small></div>`;
                 
                 row.onclick = () => {
@@ -749,7 +770,11 @@
 
         function playStream(item) {
             currentItemContext = item;
-            currentPlayingUrl = item.url;
+            
+            // 💥 แปลงจุดนี้เพื่อให้เรียกใช้งานผ่านเซิร์ฟเวอร์ Proxy สำหรับ Web Player บูตระบบ
+            const finalStreamUrl = getProxiedUrl(item.url);
+            currentPlayingUrl = finalStreamUrl; 
+
             document.getElementById('playingTitle').innerText = item.name;
             document.getElementById('streamTypeBadge').innerText = item.format.toUpperCase();
 
@@ -761,150 +786,85 @@
 
             destroyAllPlayers();
 
-            if (activeEngineMode === 'internal') {
-                document.getElementById('libraryBadge').innerText = activeWebLibrary.toUpperCase() + " Engine";
-                initWebPlayer(item.url, item.format);
-            } else {
-                document.getElementById('libraryBadge').innerText = "แอปภายนอก (" + activeEngineMode.split('_')[1].toUpperCase() + ")";
-                triggerExternalApp(item.url);
-            }
-        }
-
-        // --- 5. Web Decoder Orchestration Logic (แก้ไขสมบูรณ์) ---
-        function initWebPlayer(url, format) {
-            const videoElement = document.getElementById('mainPlayer');
-
-            // 1. จัดการการเรียกใช้งานประเภทสตรีมมิ่ง DASH (.mpd) + ClearKey DRM + Proxy Referrer
-            if (format === 'dash') {
-                // ครอบ URL ด้วย Proxy Core ทันทีเพื่อแก้ปัญหา CORS และส่งค่า Referer ผ่าน Server Backend
-                const proxiedUrl = PROXY + encodeURIComponent(url);
-                
-                instances.dash = dashjs.MediaPlayer().create();
-                
-                // โครงสร้างการตั้งค่า ClearKey ลิขสิทธิ์สำหรับช่องที่ถูกล็อกสัญญาณ
-                // หากคุณต้องการตรวจสอบผลลัพธ์ด่วน ให้กรอก KeyID:Key ลงในฟังก์ชันแมปด้านล่างนี้
-                const clearKeyConfig = {
-                    "org.w3.clearkey": {
-                        "clearkey": {
-                            // โครงสร้างตัวอย่าง: "คีย์ไอดีในรูปแบบ_hex": "ตัวคีย์ในรูปแบบ_hex"
-                            // "0123456789abcdef0123456789abcdef": "abcdef0123456789abcdef0123456789"
-                        }
-                    }
-                };
-
-                instances.dash.setProtectionData(clearKeyConfig);
-                
-                // สั่งเพิ่มกระบวนการดักจับ Request เพื่อให้ยิงผ่าน CORS Proxy อย่างเสถียรทุก Segment ข้อมูล
-                instances.dash.extend("RequestModifier", function () {
-                    return {
-                        modifyRequestHeader: function (xhr) {
-                            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-                            return xhr;
-                        },
-                        modifyRequestURL: function (requestUrl) {
-                            // แปลงลิงก์ย่อยภายในสตรีมทั้งหมด (.mp4 / .m4s) ให้ทำงานผ่านเซิร์ฟเวอร์พร็อกซีของคุณ
-                            if (!requestUrl.startsWith('http://') && !requestUrl.startsWith('https://')) {
-                                return requestUrl; 
-                            }
-                            if (requestUrl.includes(PROXY)) return requestUrl;
-                            return PROXY + encodeURIComponent(requestUrl);
-                        }
-                    };
-                }, true);
-
-                instances.dash.initialize(videoElement, proxiedUrl, true);
+            // หากเลือก Intent ไปเปิดแอปข้างนอก (VLC/MX/Pot) ให้โยน Original URL ตรงๆ ข้ามระบบสเปกชีต CORS ทันที
+            if (activeEngineMode.startsWith('external_')) {
+                document.getElementById('libraryBadge').innerText = "แอปภายนอก (" + activeEngineMode.replace('external_','').toUpperCase() + ")";
+                launchExternalIntent(item.url, activeEngineMode.replace('external_', ''));
                 return;
             }
 
-            // 2. ตัวถอดรหัสตามเคสผู้เล่นอื่นๆ (HLS/MP4)
-            // สำหรับสตรีมมิ่งสด (.m3u8) จะใช้การครอบโครงสร้าง Proxy ตั้งแต่ต้นทาง
-            const streamSourceUrl = (format === 'hls') ? (PROXY + encodeURIComponent(url)) : url;
+            const videoElement = document.getElementById('mainPlayer');
 
-            switch (activeWebLibrary) {
-                case 'hls':
-                    if (Hls.isSupported()) {
-                        instances.hls = new Hls({
-                            xhrSetup: function (xhr, url) {
-                                xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-                            }
-                        });
-                        instances.hls.loadSource(streamSourceUrl);
-                        instances.hls.attachMedia(videoElement);
-                    } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
-                        videoElement.src = streamSourceUrl;
-                    }
-                    break;
+            if (item.format === 'dash' || item.url.includes('.mpd')) {
+                document.getElementById('libraryBadge').innerText = "Dash.js Engine";
+                instances.dash = dashjs.MediaPlayer().create();
+                instances.dash.initialize(videoElement, finalStreamUrl, true);
+                return;
+            }
 
-                case 'videojs':
-                    videoElement.className = "video-js vjs-default-skin";
-                    instances.videojs = videojs(videoElement, {
-                        autoplay: true,
-                        controls: true,
-                        sources: [{ src: streamSourceUrl, type: format === 'hls' ? 'application/x-mpegURL' : 'video/mp4' }]
-                    });
-                    break;
-
-                case 'clappr':
-                    document.getElementById('videoContainerMount').innerHTML = `<div id="clapprPlayerMount" style="width:100%; height:100%;"></div>`;
-                    instances.clappr = new Clappr.Player({
-                        source: streamSourceUrl,
-                        parentId: "#clapprPlayerMount",
-                        width: '100%',
-                        height: '100%',
-                        autoPlay: true
-                    });
-                    break;
-
-                case 'plyr':
-                    videoElement.src = streamSourceUrl;
-                    if (format === 'hls' && Hls.isSupported()) {
-                        instances.hls = new Hls({
-                            xhrSetup: function (xhr, url) {
-                                xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-                            }
-                        });
-                        instances.hls.loadSource(streamSourceUrl);
-                        instances.hls.attachMedia(videoElement);
-                    }
-                    instances.plyr = new Plyr(videoElement, { autoplay: true });
-                    break;
+            if (activeWebLibrary === 'hls') {
+                document.getElementById('libraryBadge').innerText = "Hls.js Engine";
+                if (Hls.isSupported()) {
+                    instances.hls = new Hls({ liveSyncDurationCount: 3 });
+                    instances.hls.loadSource(finalStreamUrl);
+                    instances.hls.attachMedia(videoElement);
+                } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+                    videoElement.src = finalStreamUrl;
+                }
+            } 
+            else if (activeWebLibrary === 'videojs') {
+                document.getElementById('libraryBadge').innerText = "VideoJS Library";
+                videoElement.className = "video-js vjs-default-skin vjs-big-play-centered";
+                instances.videojs = videojs(videoElement, {
+                    controls: true, autoplay: true, preload: 'auto',
+                    sources: [{ src: finalStreamUrl, type: 'application/x-mpegURL' }]
+                });
+            } 
+            else if (activeWebLibrary === 'clappr') {
+                document.getElementById('libraryBadge').innerText = "Clappr Library";
+                document.getElementById('videoContainerMount').innerHTML = `<div id="clapprPlayerMount" style="width:100%; height:450px;"></div>`;
+                instances.clappr = new Clappr.Player({
+                    source: finalStreamUrl,
+                    parentId: "#clapprPlayerMount",
+                    width: "100%", height: "100%",
+                    autoPlay: true, mute: false
+                });
+            } 
+            else if (activeWebLibrary === 'plyr') {
+                document.getElementById('libraryBadge').innerText = "Plyr Premium UI";
+                if (Hls.isSupported()) {
+                    const hlsInstance = new Hls();
+                    hlsInstance.loadSource(finalStreamUrl);
+                    hlsInstance.attachMedia(videoElement);
+                    instances.hls = hlsInstance;
+                } else {
+                    videoElement.src = finalStreamUrl;
+                }
+                instances.plyr = new Plyr(videoElement, { controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'fullscreen'] });
             }
         }
 
-        // --- 6. Android/PC Deep Linking Intent Core ---
-        function triggerExternalApp(url) {
-            let intentUrl = '';
-            switch (activeEngineMode) {
-                case 'external_vlc':
-                    intentUrl = `intent:${url}#Intent;package=org.videolan.vlc;type=video/*;end`;
-                    break;
-                case 'external_mx':
-                    intentUrl = `intent:${url}#Intent;package=com.mxtech.videoplayer.ad;type=video/*;end`;
-                    break;
-                case 'external_pot':
-                    intentUrl = `potplayer://${url}`;
-                    break;
-            }
-            if (intentUrl) window.location.href = intentUrl;
+        function launchExternalIntent(url, playerType) {
+            let schemeUrl = "";
+            if (playerType === 'vlc') schemeUrl = `vlc://${url}`;
+            else if (playerType === 'mx') schemeUrl = `intent:${url}#Intent;package=com.mxtech.videoplayer.ad;end`;
+            else if (playerType === 'pot') schemeUrl = `potplayer://${url}`;
+            if (schemeUrl) window.location.href = schemeUrl;
         }
 
-        // --- 7. Settings Controller Hooks ---
-        function togglePlayerModal(show) {
-            document.getElementById('playerModal').style.display = show ? 'flex' : 'none';
-        }
-
-        function setPlayerEngine(mode, lib = '') {
-            activeEngineMode = mode;
-            activeWebLibrary = lib;
+        function setPlayerEngine(engineMode, webLib = '') {
+            activeEngineMode = engineMode;
+            activeWebLibrary = webLib;
 
             document.querySelectorAll('.p-opt').forEach(btn => btn.classList.remove('active'));
-            
-            if (mode === 'internal') {
-                document.getElementById('lib-' + lib).classList.add('active');
+            if(engineMode === 'internal') {
+                document.getElementById('lib-' + webLib).classList.add('active');
             } else {
-                document.getElementById('lib-' + mode.split('_')[1]).classList.add('active');
+                document.getElementById('lib-' + engineMode.replace('external_','')).classList.add('active');
             }
 
+            togglePlayerModal(false);
+            
             if (currentItemContext) {
                 playStream(currentItemContext);
             }
@@ -914,13 +874,19 @@
             destroyAllPlayers();
             document.getElementById('theatreView').style.display = 'none';
             
-            const activeTabButton = document.querySelector('.tab-btn.active');
-            if (activeTabButton) {
-                const currentTabId = activeTabButton.id.replace('btn-', '');
-                const targetView = document.getElementById(currentTabId);
-                if (targetView) targetView.style.display = 'block';
-            }
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                if(btn.classList.contains('active')) {
+                    const tabTarget = btn.getAttribute('onclick').match(/'([^']+)'/)[1];
+                    document.getElementById(tabTarget).style.display = 'block';
+                }
+            });
         }
+
+        function togglePlayerModal(show) {
+            document.getElementById('playerModal').style.display = show ? 'flex' : 'none';
+        }
+
+        window.addEventListener('DOMContentLoaded', loadAllPlaylists);
     </script>
 </body>
 </html>
