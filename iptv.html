@@ -3,12 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PLAYID3 - Ultimate IPTV & VOD Console</title>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght=300;400;500;600&display=swap" rel="stylesheet">
+    <title>PLAYID3 - Next-Gen IPTV & VOD Console</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
     
-    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
-
     <style>
         :root {
             --primary-glow: #DFD600;
@@ -47,7 +44,7 @@
         }
 
         .logo {
-            font-size: 20px;
+            font-size: 26px;
             font-weight: 600;
             color: var(--primary-glow);
             letter-spacing: 1px;
@@ -61,11 +58,11 @@
             background: rgba(255,255,255,0.03);
             border: 1px solid var(--border-color);
             color: var(--text-sub);
-            padding: 10px 15px;
-            border-radius: 10px;
+            padding: 10px 12px;
+            border-radius: 15px;
             cursor: pointer;
             font-family: 'Prompt', sans-serif;
-            font-size: 14px;
+            font-size: 16px;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -79,7 +76,7 @@
 
         .main-content {
             flex: 1;
-            padding: 25px 40px;
+            padding: 15px 40px;
             box-sizing: border-box;
         }
 
@@ -123,8 +120,8 @@
         }
 
         .item-card img {
-            width: 75px;
-            height: 75px;
+            width: 85px;
+            height: 85px;
             object-fit: contain;
             margin-bottom: 12px;
             border-radius: 12px;
@@ -139,6 +136,7 @@
             text-overflow: ellipsis;
         }
 
+        /* Loading Spinner */
         .loading-text {
             color: var(--text-sub);
             font-size: 14px;
@@ -166,20 +164,13 @@
         .video-wrapper {
             position: relative;
             width: 100%;
-            background: #000;
+            padding-top: 56.25%; /* 16:9 */
         }
 
-        .video-wrapper video {
-            width: 100%;
-            max-height: 70vh;
-            display: block;
+        video {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
             object-fit: contain;
-        }
-
-        .video-js {
-            width: 100% !important;
-            height: 500px !important;
-            max-height: 70vh;
         }
 
         .theatre-controls {
@@ -330,56 +321,34 @@
         .modal-body {
             background: #0f0f1d;
             border: 1px solid var(--border-color);
-            padding: 35px;
+            padding: 40px;
             border-radius: 24px;
             width: 90%;
-            max-width: 520px;
+            max-width: 460px;
             text-align: center;
-        }
-
-        .player-group-title {
-            font-size: 13px;
-            color: var(--primary-glow);
-            text-align: left;
-            margin: 15px 0 8px 0;
-            font-weight: 500;
-            letter-spacing: 0.5px;
         }
 
         .player-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 15px;
+            gap: 15px;
+            margin: 25px 0;
         }
 
         .p-opt {
             background: rgba(255,255,255,0.03);
             border: 1px solid var(--border-color);
             color: #fff;
-            padding: 12px;
+            padding: 16px;
             border-radius: 12px;
             cursor: pointer;
             font-family: 'Prompt', sans-serif;
-            font-size: 13px;
             transition: 0.2s;
-            text-align: left;
-            display: flex;
-            flex-direction: column;
         }
 
-        .p-opt small {
-            color: var(--text-sub);
-            font-size: 11px;
-            margin-top: 2px;
-        }
-
-        .p-opt:hover, .p-opt.active {
+        .p-opt:hover {
             border-color: var(--primary-glow);
             background: var(--card-hover);
-        }
-        .p-opt.active {
-            box-shadow: inset 0 0 10px rgba(223, 214, 0, 0.2);
         }
 
         @media (max-width: 1024px) {
@@ -392,11 +361,11 @@
 
     <div class="app-container">
         <header>
-            <div class="logo">PLAYID3 MULTIVERSE</div>
+            <div class="logo">PLAYID STREAM</div>
             <div class="nav-tabs">
                 <button class="tab-btn active" onclick="switchMainTab('tv-tab')">📺 ทีวีออนไลน์</button>
-                <button class="tab-btn" onclick="switchMainTab('movies-tab')">🎬 ภาพยนตร์</button>
-                <button class="tab-btn" onclick="switchMainTab('series-tab')">🍿 ซีรีส์ </button>
+                <button class="tab-btn" onclick="switchMainTab('movies-tab')">⚽ บอลสด</button>
+                
             </div>
         </header>
 
@@ -405,17 +374,16 @@
             <div id="theatreView" class="theatre-layout">
                 <div class="video-box-wrapper">
                     <div class="video-container">
-                        <div id="videoContainerMount" class="video-wrapper">
+                        <div class="video-wrapper">
                             <video id="mainPlayer" controls autoplay></video>
                         </div>
                         <div class="theatre-controls">
                             <div>
                                 <h3 id="playingTitle" style="margin:0 0 5px 0; font-size: 18px;">กำลังโหลด...</h3>
                                 <span id="streamTypeBadge" style="font-size:11px; color:var(--primary-glow); background:rgba(223,214,0,0.1); padding:3px 10px; border-radius:4px; font-weight:500;">HLS</span>
-                                <span id="libraryBadge" style="font-size:11px; color:#fff; background:rgba(255,255,255,0.1); padding:3px 10px; border-radius:4px; font-weight:500; margin-left:5px;">Hls.js Engine</span>
                             </div>
                             <div style="display: flex; gap: 10px;">
-                                <button class="action-btn" onclick="togglePlayerModal(true)">⚙️ ตัวสลับเครื่องเล่น / แอป</button>
+                                <button class="action-btn" onclick="togglePlayerModal(true)">⚙️ เปลี่ยนตัวเล่น</button>
                                 <button class="action-btn danger" onclick="closeTheatreMode()">🔙 ย้อนกลับหน้าหลัก</button>
                             </div>
                         </div>
@@ -451,16 +419,13 @@
             </div>
 
             <div id="movies-tab" class="section-view">
-                <h2 class="category-title">ภาพยนตร์สตรีมมิ่ง (Movies / VOD)</h2>
+                <h2 class="category-title">บอลสด</h2>
                 <div id="movieItemsGrid" class="items-grid">
                     <div class="loading-text">กำลังเชื่อมต่อคลังภาพยนตร์และแปลงรหัสไฟล์สตรีม...</div>
                 </div>
             </div>
 
-            <div id="series-tab" class="section-view">
-                <h2 class="category-title">ซีรีส์สุดฮิต (Series)</h2>
-                <div id="seriesItemsGrid" class="items-grid">
-                    <div class="loading-text">กำลังตรวจสอบรายชื่อคลังซีรีส์...</div>
+            
                 </div>
             </div>
 
@@ -469,109 +434,74 @@
 
     <div id="playerModal" class="modal">
         <div class="modal-body">
-            <h2 style="margin:0; color:var(--primary-glow)">🎬 การตั้งค่าเครื่องเล่นวิดีโอ</h2>
-            <p style="font-size:12px; color:var(--text-sub); margin:5px 0;">เลือกซอฟต์แวร์ถอดรหัสสัญญาณที่เล่นได้ดีที่สุดสำหรับอุปกรณ์ของคุณ</p>
+            <h2 style="margin:0; color:var(--primary-glow)">🎬 เลือก Engine เครื่องเล่นวิดีโอ</h2>
+            <p style="font-size:13px; color:var(--text-sub)">เลือกระบบถอดรหัสที่เหมาะสมกับประเภทไฟล์สตรีมมิ่งของคุณ</p>
             
-            <div class="player-group-title">🌐 Web Player Library (เล่นบนหน้าเว็บทันที)</div>
             <div class="player-grid">
-                <button id="lib-hls" class="p-opt active" onclick="setPlayerEngine('internal', 'hls')">
-                    <span>Hls.js Engine</span><small>มาตรฐาน, โหลดสตรีมไว</small>
-                </button>
-                <button id="lib-videojs" class="p-opt" onclick="setPlayerEngine('internal', 'videojs')">
-                    <span>VideoJS Player</span><small>เสถียรสูง, คอนโทรลสวย</small>
-                </button>
-                <button id="lib-clappr" class="p-opt" onclick="setPlayerEngine('internal', 'clappr')">
-                    <span>Clappr Player</span><small>เหมาะกับช่อง Live TV สด</small>
-                </button>
-                <button id="lib-plyr" class="p-opt" onclick="setPlayerEngine('internal', 'plyr')">
-                    <span>Plyr UI Player</span><small>ดีไซน์พรีเมียม สบายตา</small>
-                </button>
-            </div>
-
-            <div class="player-group-title">📲 External Player Intent (ส่งสัญญาณเข้าแอปภายนอก)</div>
-            <div class="player-grid">
-                <button id="lib-vlc" class="p-opt" onclick="setPlayerEngine('external_vlc')">
-                    <span>🧡 แอป VLC Media</span><small>ถอดรหัสลื่นไหลในมือถือ</small>
-                </button>
-                <button id="lib-mx" class="p-opt" onclick="setPlayerEngine('external_mx')">
-                    <span>💚 แอป MX Player</span><small>สำหรับผู้ใช้ Android</small>
-                </button>
-                <button id="lib-pot" class="p-opt" onclick="setPlayerEngine('external_pot')">
-                    <span>💙 แอป PotPlayer</span><small>สำหรับผู้เล่นบน PC</small>
-                </button>
+                <button class="p-opt" onclick="setPlayerEngine('internal')">🌐 ระบบหลักเว็บเบราว์เซอร์<br><small>(HLS / MP4 / DASH)</small></button>
+                <button class="p-opt" onclick="setPlayerEngine('vlc')">🧡 เปิดแอป External VLC</button>
+                <button class="p-opt" onclick="setPlayerEngine('mx')">💚 เปิดแอป MX Player</button>
+                <button class="p-opt" onclick="setPlayerEngine('pot')">💙 PotPlayer (สำหรับ PC)</button>
             </div>
             
-            <button class="action-btn" style="width:100%; justify-content:center; background:rgba(255,255,255,0.05); margin-top:10px;" onclick="togglePlayerModal(false)">ตกลงและปิดหน้าต่าง</button>
+            <button class="action-btn" style="width:100%; justify-content:center; background:rgba(255,255,255,0.05);" onclick="togglePlayerModal(false)">ปิดหน้าต่าง</button>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/dashjs@latest/dist/dash.all.min.js"></script>
-    <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@clappr/player@latest/dist/clappr.min.js"></script>
-    <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
 
     <script>
+        // --- 🔗 การกำหนดระบบลิงก์ Playlist แยกประเภทถาวร ---
         const PLAYLISTS = {
             tv: "https://dl.dropbox.com/scl/fi/oxnleuyz1jgd3vrefaq3v/licencempd.txt?rlkey=47a9p9coqw3hu0rw793s847sm&st=c32frsak&dl=0",
-            movies: "https://py-weld.vercel.app/live/Movie.m3u",
-            series: ""
+            movies: "https://de.ufile.eu.org/ppv_m3u.php",
+            series: "" // ใส่ลิงก์ซีรีส์ของคุณแทนที่ตรงนี้ได้เลยครับ
         };
 
         let globalLiveTvData = {}; 
         let globalMoviesData = [];
         let globalSeriesData = [];
         let watchHistory = [];
-        let currentItemContext = null;
 
-        let activeEngineMode = 'internal'; 
-        let activeWebLibrary = 'hls'; 
-
+        let activeEngine = 'internal'; 
         let currentPlayingUrl = '';
         let currentPlaylistContext = []; 
+        let hlsPlayerInstance = null;
+        let dashPlayerInstance = null;
 
-        let instances = { hls: null, dash: null, videojs: null, clappr: null, plyr: null };
-
-        // --- เพิ่มฟังก์ชันจัดการสับเปลี่ยนลิ้งก์ให้วิ่งผ่าน CORS Proxy ---
-        function getProxiedUrl(originalUrl) {
-            // ⚠️ ปรับเปลี่ยน URL ตรงนี้ให้ตรงกับ Domain ของโฮสต์ที่รัน proxy.js ของคุณ
-            const PROXY_ENDPOINT = "/proxy?url=";
-            
-            // ดักจับลิ้งก์ที่มักติดสิทธิ์ CORS หรือต้องการ Spoofing Header (เช่น AIS Play หรือค่ายอื่น)
-            if (originalUrl.includes("ais-vidnt.com") || originalUrl.includes("playid3-secure") || originalUrl.includes(".m3u8")) {
-                return PROXY_ENDPOINT + encodeURIComponent(originalUrl);
-            }
-            return originalUrl;
-        }
-
-        // --- 1. ระบบจัดการข้อมูลเพลย์ลิสต์ ---
+        // --- 1. ระบบดึงข้อมูลและแยกวิเคราะห์ไฟล์ (Multi-Playlist M3U Parser) ---
         async function loadAllPlaylists() {
             loadWatchHistory();
             renderHistoryGrid();
 
+            // โหลดรายการทีวีสด
             try {
                 let text = await fetchTextData(PLAYLISTS.tv);
                 parsePlaylistToStore(text, 'tv');
                 renderTvInterface();
                 renderSidebarQuickMenu();
-            } catch(e) { console.error("TV Error", e); }
+            } catch(e) { console.error("TV Load Failed", e); loadFallback('tv'); }
 
+            // โหลดรายการหนังภาพยนตร์
             try {
                 let text = await fetchTextData(PLAYLISTS.movies);
                 parsePlaylistToStore(text, 'movies');
                 renderMoviesInterface();
-            } catch(e) { console.error("Movies Error", e); }
+            } catch(e) { console.error("Movies Load Failed", e); loadFallback('movies'); }
 
+            // โหลดรายการซีรีส์
             try {
                 let text = await fetchTextData(PLAYLISTS.series);
                 parsePlaylistToStore(text, 'series');
                 renderSeriesInterface();
-            } catch(e) { console.error("Series Error", e); }
+            } catch(e) { console.error("Series Load Failed", e); loadFallback('series'); }
         }
 
         async function fetchTextData(url) {
             let cleanUrl = url.replace("www.dropbox.com", "dl.dropbox.com").replace("dl=0", "dl=1");
             const response = await fetch(cleanUrl);
+            if (!response.ok) throw new Error("Fetch Error");
             return await response.text();
         }
 
@@ -598,6 +528,7 @@
                     else if (line.includes('.mp4') || line.includes('.mkv')) currentMeta.format = 'mp4';
                     else currentMeta.format = 'unknown';
 
+                    // บันทึกแยกคลังตามความต้องการ
                     if (targetType === 'tv') {
                         if (!globalLiveTvData[currentMeta.group]) globalLiveTvData[currentMeta.group] = [];
                         globalLiveTvData[currentMeta.group].push(currentMeta);
@@ -613,7 +544,21 @@
             }
         }
 
-        // --- 2. ระบบประวัติการรับชม ---
+        function loadFallback(type) {
+            if (type === 'tv') {
+                globalLiveTvData["⚽ SPORTS PREMIUM"] = [
+                    { name: "STREAMX MAX 1 HD", logo: "https://images.streamx2.cc/images/tv/png/streamx-max01-hd.png", url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", format: "hls", group: "⚽ SPORTS PREMIUM" }
+                ];
+                renderTvInterface(); renderSidebarQuickMenu();
+            } else if (type === 'movies') {
+                globalMoviesData = [
+                    { name: "Sintel Sci-Fi (MPEG-DASH Demo)", logo: "https://via.placeholder.com/150/121220/ffffff?text=Sintel", url: "https://dash.akamaized.net/dash264/TestCases/1a/sony/Sintel.mpd", format: "dash", group: "MOVIES VOD" }
+                ];
+                renderMoviesInterface();
+            }
+        }
+
+        // --- 2. ระบบจัดการความจำประวัติ (Watch History Engine) ---
         function loadWatchHistory() {
             const saved = localStorage.getItem('playid3_history');
             if (saved) watchHistory = JSON.parse(saved);
@@ -646,7 +591,7 @@
             watchHistory = []; localStorage.removeItem('playid3_history'); renderHistoryGrid();
         }
 
-        // --- 3. UI Controllers ---
+        // --- 3. UI Renderer Controllers ---
         function switchMainTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.section-view').forEach(view => view.classList.remove('active'));
@@ -654,8 +599,6 @@
             document.getElementById(tabId).classList.add('active');
             closeTheatreMode();
         }
-
-        if (window.showChannelsInCategory === undefined) { window.showChannelsInCategory = function() {}; }
 
         function renderTvInterface() {
             const tvContainer = document.getElementById('liveTvCategoriesContainer');
@@ -681,6 +624,7 @@
         function renderMoviesInterface() {
             const movieGrid = document.getElementById('movieItemsGrid');
             movieGrid.innerHTML = '';
+            if(globalMoviesData.length === 0) { movieGrid.innerHTML = '<div class="loading-text">ไม่พบรายการภาพยนตร์ในเพลย์ลิสต์นี้</div>'; return; }
             globalMoviesData.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'item-card';
@@ -693,6 +637,7 @@
         function renderSeriesInterface() {
             const seriesGrid = document.getElementById('seriesItemsGrid');
             seriesGrid.innerHTML = '';
+            if(globalSeriesData.length === 0) { seriesGrid.innerHTML = '<div class="loading-text">ไม่พบรายการซีรีส์ในเพลย์ลิสต์นี้</div>'; return; }
             globalSeriesData.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'item-card';
@@ -718,11 +663,12 @@
             }
         }
 
-        // --- 4. Core Multi-Library Engine (ระบบเล่นสตรีมมิ่ง) ---
+        // --- 4. Core Streaming & Playlist Engine ---
         function launchStreamingTheatre(item, contextPlaylist) {
             document.querySelectorAll('.section-view').forEach(view => view.style.display = 'none');
             document.getElementById('theatreView').style.display = 'grid';
             
+            // เช็คว่าเมนูที่เล่นเป็นหมวดทีวีสดหรือไม่ เพื่อเปิดแผงควบคุมสลับหมวดด่วนข้าง Sidebar
             const isTv = Object.values(globalLiveTvData).some(arr => arr.some(x => x.url === item.url));
             document.getElementById('sidebarMenuNav').style.display = isTv ? 'block' : 'none';
 
@@ -758,23 +704,8 @@
             });
         }
 
-        function destroyAllPlayers() {
-            if (instances.videojs) { try { instances.videojs.dispose(); } catch(e){} instances.videojs = null; }
-            if (instances.clappr) { try { instances.clappr.destroy(); } catch(e){} instances.clappr = null; }
-            if (instances.plyr) { try { instances.plyr.destroy(); } catch(e){} instances.plyr = null; }
-            if (instances.hls) { try { instances.hls.destroy(); } catch(e){} instances.hls = null; }
-            if (instances.dash) { try { instances.dash.reset(); } catch(e){} instances.dash = null; }
-            
-            document.getElementById('videoContainerMount').innerHTML = `<video id="mainPlayer" controls autoplay></video>`;
-        }
-
         function playStream(item) {
-            currentItemContext = item;
-            
-            // 💥 แปลงจุดนี้เพื่อให้เรียกใช้งานผ่านเซิร์ฟเวอร์ Proxy สำหรับ Web Player บูตระบบ
-            const finalStreamUrl = getProxiedUrl(item.url);
-            currentPlayingUrl = finalStreamUrl; 
-
+            currentPlayingUrl = item.url;
             document.getElementById('playingTitle').innerText = item.name;
             document.getElementById('streamTypeBadge').innerText = item.format.toUpperCase();
 
@@ -784,63 +715,28 @@
             const activeRow = document.getElementById("side-row-" + btoa(encodeURIComponent(item.url)).replace(/=/g, ''));
             if(activeRow) activeRow.classList.add('active');
 
-            destroyAllPlayers();
+            const video = document.getElementById('mainPlayer');
+            if (hlsPlayerInstance) { hlsPlayerInstance.destroy(); hlsPlayerInstance = null; }
+            if (dashPlayerInstance) { dashPlayerInstance.reset(); dashPlayerInstance = null; }
+            video.src = '';
 
-            // หากเลือก Intent ไปเปิดแอปข้างนอก (VLC/MX/Pot) ให้โยน Original URL ตรงๆ ข้ามระบบสเปกชีต CORS ทันที
-            if (activeEngineMode.startsWith('external_')) {
-                document.getElementById('libraryBadge').innerText = "แอปภายนอก (" + activeEngineMode.replace('external_','').toUpperCase() + ")";
-                launchExternalIntent(item.url, activeEngineMode.replace('external_', ''));
-                return;
-            }
-
-            const videoElement = document.getElementById('mainPlayer');
-
-            if (item.format === 'dash' || item.url.includes('.mpd')) {
-                document.getElementById('libraryBadge').innerText = "Dash.js Engine";
-                instances.dash = dashjs.MediaPlayer().create();
-                instances.dash.initialize(videoElement, finalStreamUrl, true);
-                return;
-            }
-
-            if (activeWebLibrary === 'hls') {
-                document.getElementById('libraryBadge').innerText = "Hls.js Engine";
-                if (Hls.isSupported()) {
-                    instances.hls = new Hls({ liveSyncDurationCount: 3 });
-                    instances.hls.loadSource(finalStreamUrl);
-                    instances.hls.attachMedia(videoElement);
-                } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
-                    videoElement.src = finalStreamUrl;
-                }
-            } 
-            else if (activeWebLibrary === 'videojs') {
-                document.getElementById('libraryBadge').innerText = "VideoJS Library";
-                videoElement.className = "video-js vjs-default-skin vjs-big-play-centered";
-                instances.videojs = videojs(videoElement, {
-                    controls: true, autoplay: true, preload: 'auto',
-                    sources: [{ src: finalStreamUrl, type: 'application/x-mpegURL' }]
-                });
-            } 
-            else if (activeWebLibrary === 'clappr') {
-                document.getElementById('libraryBadge').innerText = "Clappr Library";
-                document.getElementById('videoContainerMount').innerHTML = `<div id="clapprPlayerMount" style="width:100%; height:450px;"></div>`;
-                instances.clappr = new Clappr.Player({
-                    source: finalStreamUrl,
-                    parentId: "#clapprPlayerMount",
-                    width: "100%", height: "100%",
-                    autoPlay: true, mute: false
-                });
-            } 
-            else if (activeWebLibrary === 'plyr') {
-                document.getElementById('libraryBadge').innerText = "Plyr Premium UI";
-                if (Hls.isSupported()) {
-                    const hlsInstance = new Hls();
-                    hlsInstance.loadSource(finalStreamUrl);
-                    hlsInstance.attachMedia(videoElement);
-                    instances.hls = hlsInstance;
+            if (activeEngine === 'internal') {
+                if (item.format === 'hls' || item.url.includes('.m3u8')) {
+                    if (Hls.isSupported()) {
+                        hlsPlayerInstance = new Hls({ liveSyncDurationCount: 3 });
+                        hlsPlayerInstance.loadSource(item.url);
+                        hlsPlayerInstance.attachMedia(video);
+                    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                        video.src = item.url;
+                    }
+                } else if (item.format === 'dash' || item.url.includes('.mpd')) {
+                    dashPlayerInstance = dashjs.MediaPlayer().create();
+                    dashPlayerInstance.initialize(video, item.url, true);
                 } else {
-                    videoElement.src = finalStreamUrl;
+                    video.src = item.url;
                 }
-                instances.plyr = new Plyr(videoElement, { controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'fullscreen'] });
+            } else {
+                launchExternalIntent(item.url, activeEngine);
             }
         }
 
@@ -852,26 +748,19 @@
             if (schemeUrl) window.location.href = schemeUrl;
         }
 
-        function setPlayerEngine(engineMode, webLib = '') {
-            activeEngineMode = engineMode;
-            activeWebLibrary = webLib;
-
-            document.querySelectorAll('.p-opt').forEach(btn => btn.classList.remove('active'));
-            if(engineMode === 'internal') {
-                document.getElementById('lib-' + webLib).classList.add('active');
-            } else {
-                document.getElementById('lib-' + engineMode.replace('external_','')).classList.add('active');
-            }
-
+        function setPlayerEngine(engineType) {
+            activeEngine = engineType;
             togglePlayerModal(false);
-            
-            if (currentItemContext) {
-                playStream(currentItemContext);
-            }
+            const activeRow = currentPlaylistContext.find(m => m.url === currentPlayingUrl);
+            if (activeRow) playStream(activeRow);
         }
 
         function closeTheatreMode() {
-            destroyAllPlayers();
+            const video = document.getElementById('mainPlayer');
+            video.pause();
+            if (hlsPlayerInstance) { hlsPlayerInstance.destroy(); hlsPlayerInstance = null; }
+            if (dashPlayerInstance) { dashPlayerInstance.reset(); dashPlayerInstance = null; }
+
             document.getElementById('theatreView').style.display = 'none';
             
             document.querySelectorAll('.tab-btn').forEach(btn => {
