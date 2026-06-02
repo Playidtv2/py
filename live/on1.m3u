@@ -1,4 +1,4 @@
-#EXTM3U
+#EXTM3U URL"https://raw.githubusercontent.com/Playidtv2/py/refs/heads/main/live/on1.m3u",
 
 #EXTINF:-1 tvg-logo="https://animemeiji.com/wp-content/uploads/2025/12/Xian-Jian-Qi-Xia-Chuan-San.webp" group-title="Xian Jian Qi Xia Chuan San เซียนกระบี่พิชิตมาร 3",ตอนที่ 1
 #EXTVLCOPT:http-referrer=https://animemeiji.com/xian-jian-qi-xia-chuan-san/
