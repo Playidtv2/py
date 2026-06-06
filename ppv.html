@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sport & Live TV IPTV Player</title>
+    <!-- Tailwind CSS สำหรับการตกแต่งที่สวยงามและรองรับมือถือ -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        /* ซ่อน Scrollbar ของหมวดหมู่แต่ยังเลื่อนได้ */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased">
+
+    <!-- ส่วนหัวของเว็บไซต์ -->
+    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 px-4 py-3 shadow-md">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+            <h1 class="text-xl font-bold tracking-wider text-indigo-400 flex items-center gap-2">
+                📺 IPTV EMBED PLAYER
+            </h1>
+            <div class="text-xs text-slate-400 bg-slate-950 px-3 py-1.5 rounded-full border border-slate-800">
+                Source: <span class="text-emerald-400 font-mono">ppv_m3u.php</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto p-4 space-y-6">
+
+        <!-- ส่วนของเครื่องเล่นวิดีโอ (Embed Player) -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 space-y-3">
+                <!-- ตัวเล่น Iframe -->
+                <div class="relative w-full aspect-video bg-black rounded-xl overflow-hidden shadow-2xl border border-slate-800">
+                    <iframe 
+                        id="videoPlayer"
+                        src="" 
+                        class="absolute top-0 left-0 w-full h-full" 
+                        allowfullscreen 
+                        scrolling="no" 
+                        allow="encrypted-media; picture-in-picture">
+                    </iframe>
+                    <!-- หน้าต่างต้อนรับตอนยังไม่ได้กดเลือกช่อง -->
+                    <div id="playerPlaceholder" class="absolute inset-0 bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
+                        <div class="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center text-3xl mb-3 animate-pulse">🎯</div>
+                        <h3 class="text-lg font-semibold">ยินดีต้อนรับสู่ IPTV Player</h3>
+                        <p class="text-sm text-slate-400 mt-1 max-w-sm">กรุณาเลือกหมวดหมู่และช่องรายการด้านล่างเพื่อเริ่มรับชมความบันเทิง</p>
+                    </div>
+                </div>
+                <!-- ข้อมูลช่องที่กำลังฉาย -->
+                <div id="currentChannelInfo" class="p-4 bg-slate-900 rounded-xl border border-slate-800 hidden">
+                    <span id="currentGroup" class="text-xs font-semibold px-2.5 py-1 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20"></span>
+                    <h2 id="currentTitle" class="text-lg font-bold mt-2 text-white"></h2>
+                </div>
+            </div>
+
+            <!-- กล่องแสดงข้อความจำลองสถานะ หรือสถิติช่อง (Side Panel) -->
+            <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 flex flex-col justify-between h-full min-h-[200px] lg:min-h-auto">
+                <div>
+                    <h3 class="font-semibold text-sm text-slate-400 uppercase tracking-wider mb-3">ระบบควบคุม</h3>
+                    <p class="text-xs text-slate-400 mb-4">หากช่องโหลดช้า หรือขึ้นหน้าจอขาว อาจเกิดจากลิงก์ Embed ปลายทางปิดกั้นการดึงข้อมูลภายนอก (X-Frame-Options) หรือลิงก์หมดอายุ</p>
+                </div>
+                <button onclick="fetchM3UData()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm py-2.5 px-4 rounded-lg transition-colors cursor-pointer text-center">
+                    🔄 รีเฟรชดึงข้อมูลใหม่
+                </button>
+            </div>
+        </section>
+
+        <hr class="border-slate-800">
+
+        <!-- ส่วนของแถบเลือกหมวดหมู่ (Categories) -->
+        <section class="space-y-3">
+            <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider">หมวดหมู่รายการกีฬา / สตรีม</h3>
+            <div id="categoryContainer" class="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+                <!-- หมวดหมู่จะถูกเพิ่มเข้ามาด้วย JavaScript ที่นี่ -->
+                <div class="text-sm text-slate-500 animate-pulse">กำลังโหลดหมวดหมู่...</div>
+            </div>
+        </section>
+
+        <!-- ส่วนรายการช่อง (Channel Grid) -->
+        <section class="space-y-3">
+            <div class="flex justify-between items-center">
+                <h3 id="listTitle" class="text-sm font-semibold text-slate-400 uppercase tracking-wider">ช่องทั้งหมด</h3>
+                <span id="channelCount" class="text-xs text-slate-400 bg-slate-900 px-2 py-1 rounded border border-slate-800">0 ช่อง</span>
+            </div>
+            <div id="channelsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <!-- รายการช่องจะถูกเพิ่มเข้ามาด้วย JavaScript ที่นี่ -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- JavaScript ในการประมวลผลข้อมูล M3U -->
+    <script>
+        // ลิงก์แหล่งข้อมูล M3U ของคุณ
+        const m3uUrl = 'https://de.ufile.eu.org/ppv_m3u.php';
+        
+        // ตัวแปรเก็บข้อมูลช่องทั้งหมดหลังแกะข้อมูลแล้ว
+        let allChannels = [];
+        let currentFilter = 'ALL';
+
+        // ฟังก์ชันเริ่มต้นระบบเมื่อหน้าเว็บโหลดเสร็จ
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchM3UData();
+        });
+
+        // ดึงข้อมูลจากไฟล์ M3U
+        async function fetchM3UData() {
+            try {
+                // หมายเหตุ: การดึงข้อมูลข้ามโดเมนตรงๆ บน Browser อาจติดปัญหา CORS Policy 
+                // หากติดปัญหานี้ แนะนำให้ใช้ตัวเปิดผ่าน Proxy หรือ รันบน Server หลังบ้าน
+                // ในตัวอย่างนี้จะใช้ข้อมูลชุดทดสอบที่คุณเตรียมไว้ให้ เผื่อในกรณีที่ Fetch ตรงๆ ไม่ได้
+                
+                let m3uText = "";
+                try {
+                    const response = await fetch(m3uUrl);
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    m3uText = await response.text();
+                } catch (fetchError) {
+                    console.warn("ไม่สามารถดึงข้อมูลตรงๆ ได้เนื่องจากข้อจำกัด CORS, ระบบจะสลับไปใช้ Data สำรองที่ให้มา");
+                    m3uText = getBackupM3UData();
+                }
+
+                // นำข้อมูล M3U มาแปลงเป็น Object
+                allChannels = parseM3U(m3uText);
+                
+                // สร้างปุ่มหมวดหมู่และแสดงช่องทั้งหมด
+                renderCategories();
+                filterChannels('ALL');
+
+            } catch (error) {
+                console.error('Error stringify M3U:', error);
+                alert('เกิดข้อผิดพลาดในการโหลดข้อมูลช่องรายการ');
+            }
+        }
+
+        // ฟังก์ชันตัดคำ (Parser) แกะข้อมูล #EXTINF
+        function parseM3U(data) {
+            const lines = data.split('\n');
+            const channels = [];
+            let currentItem = null;
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+
+                if (line.startsWith('#EXTINF:')) {
+                    currentItem = {};
+                    
+                    // ดึง tvg-logo
+                    const logoMatch = line.match(/tvg-logo="([^"]+)"/);
+                    currentItem.logo = logoMatch ? logoMatch[1] : 'https://placehold.co/400x225/0f172a/6366f1?text=No+Logo';
+
+                    // ดึง group-title (หมวดหมู่)
+                    const groupMatch = line.match(/group-title="([^"]+)"/);
+                    currentItem.group = groupMatch ? groupMatch[1] : 'ทั่วไป';
+
+                    // ดึง ชื่อช่อง (อยู่หลังเครื่องหมายจุลภาคตัวสุดท้าย , )
+                    const commaIndex = line.lastIndexOf(',');
+                    if (commaIndex !== -1) {
+                        currentItem.title = line.substring(commaIndex + 1).trim();
+                    } else {
+                        currentItem.title = 'Unknown Channel';
+                    }
+                } else if (line.startsWith('http') && currentItem) {
+                    // ดึงลิงก์ Embed
+                    currentItem.url = line;
+                    channels.push(currentItem);
+                    currentItem = null; // รีเซ็ตเพื่อรอช่องถัดไป
+                }
+            }
+            return channels;
+        }
+
+        // ฟังก์ชันสร้างกลุ่มหมวดหมู่ด้านบนแบบ Dynamic
+        function renderCategories() {
+            const container = document.getElementById('categoryContainer');
+            
+            // ดึงกลุ่มทั้งหมดที่มีแบบไม่ซ้ำกัน
+            const groups = ['ALL', ...new Set(allChannels.map(ch => ch.group))];
+            
+            container.innerHTML = groups.map(group => {
+                const isActive = group === currentFilter;
+                return `
+                    <button 
+                        onclick="filterChannels('${group}')"
+                        class="px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer border
+                        ${isActive 
+                            ? 'bg-indigo-600 text-white border-indigo-500 shadow-md shadow-indigo-600/20' 
+                            : 'bg-slate-900 text-slate-300 border-slate-800 hover:bg-slate-800'}"
+                        id="btn-cat-${group.replace(/\s+/g, '-')}"
+                    >
+                        ${group === 'ALL' ? 'ทั้งหมด🌟' : group}
+                    </button>
+                `;
+            }).join('');
+        }
+
+        // ฟังก์ชันกรองช่องตามหมวดหมู่ที่เลือก
+        function filterChannels(group) {
+            currentFilter = group;
+            
+            // เปลี่ยนสถานะความアクティブของปุ่มหมวดหมู่
+            renderCategories();
+
+            const filtered = group === 'ALL' 
+                ? allChannels 
+                : allChannels.filter(ch => ch.group === group);
+
+            document.getElementById('listTitle').innerText = group === 'ALL' ? 'ช่องทั้งหมด' : `หมวดหมู่: ${group}`;
+            document.getElementById('channelCount').innerText = `${filtered.length} ช่อง`;
+
+            const grid = document.getElementById('channelsGrid');
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-500 text-sm">ไม่มีช่องรายการในหมวดหมู่นี้</div>`;
+                return;
+            }
+
+            // แสดงการ์ดรายการช่องทีวีแต่ละช่อง
+            grid.innerHTML = filtered.map(ch => `
+                <div 
+                    onclick="playChannel('${ch.url}', '${btoa(encodeURIComponent(ch.title))}', '${ch.group}')"
+                    class="bg-slate-900 border border-slate-800 rounded-xl p-3 hover:border-indigo-500 transition-all cursor-pointer group flex flex-col justify-between"
+                >
+                    <div class="relative aspect-video w-full bg-slate-950 rounded-lg overflow-hidden mb-3">
+                        <img 
+                            src="${ch.logo}" 
+                            alt="${ch.title}" 
+                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            onerror="this.src='https://placehold.co/400x225/0f172a/6366f1?text=No+Image'"
+                        />
+                        <span class="absolute top-2 right-2 text-[10px] font-medium px-2 py-0.5 rounded bg-slate-950/80 text-slate-300 backdrop-blur-xs">
+                            ${ch.group}
+                        </span>
+                    </div>
+                    <h4 class="text-sm font-medium line-clamp-2 group-hover:text-indigo-400 transition-colors" title="${ch.title}">
+                        ${ch.title}
+                    </h4>
+                </div>
+            `).join('');
+        }
+
+        // ฟังก์ชันสั่งให้เครื่องเล่นทำงานเมื่อกดเลือกช่อง
+        function playChannel(url, encodedTitle, group) {
+            const title = decodeURIComponent(atob(encodedTitle));
+            const player = document.getElementById('videoPlayer');
+            const placeholder = document.getElementById('playerPlaceholder');
+            const infoBox = document.getElementById('currentChannelInfo');
+
+            // ซ่อนรูป Placeholder หน้าแรกออกไป
+            placeholder.classList.add('hidden');
+            
+            // ส่งลิงก์วิดีโอเข้า Iframe Embed Player
+            player.src = url;
+
+            // อัปเดตกล่องรายละเอียดด้านล่างสตรีมเมอร์
+            infoBox.classList.remove('hidden');
+            document.getElementById('currentGroup').innerText = group;
+            document.getElementById('currentTitle').innerText = title;
+
+            // เลื่อนหน้าจอกลับขึ้นไปด้านบนเพื่อให้เห็นวิดีโอชัดเจนบนสมาร์ทโฟน
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ข้อมูลสตรีมสำรอง (FallBack) กรณีดึงจาก Server สดๆ ติดปัญหา CORS ในฝั่ง Client Browser
+        function getBackupM3UData() {
+            return `#EXTM3U
+#EXTINF:-1 tvg-logo="https://api.ppv.to/assets/thumb/3326e7d98b44ae8c27005708534a2b16-thumbnail.jpg" group-title="American Football",Panthers Wroclaw vs. Paris Lights (19:00 ~ 22:30)
+https://embedindia.st/embed/afle/2026-06-06/pan-par
+#EXTINF:-1 tvg-logo="https://api.ppv.to/assets/thumb/981e393700d80f21ebe8c1c980ff4793-thumbnail.jpg" group-title="American Football",Berlin Thunder vs. Firenze Red Lions (22:10 ~ 01:40)
+https://embedindia.st/embed/afle/2026-06-06/ber-fir
+#EXTINF:-1 tvg-logo="https://api.ppv.to/assets/thumb/273e8f79145d4626f689579cab2760dd-thumbnail.jpg" group-title="Arm Wrestling",East vs West 24 (01:00 ~ 08:00)
+https://embedindia.st/embed/east-vs-west-24
+#EXTINF:-1 tvg-logo="https://api.ppv.to/assets/thumb/eba227028b503766232ffc779c29954d-thumbnail.jpg" group-title="Australian Football",Gold Coast SUNS vs. Brisbane Lions (15:15 ~ 18:15)
+https://embedindia.st/embed/afl/2026-06-06/gcfc-bl
+#EXTINF:-1 tvg-logo="https://api.ppv.to/assets/thumb/a184b4b22083c970cc4ccac242eff0f2-thumbnail.jpg" group-title="Baseball",Seattle Mariners vs. Detroit Tigers (01:10 ~ 04:40)
+https://embedindia.st/embed/mlb/2026-06-06/sea-det
+#EXTINF:-1 tvg-logo="https://api.ppv.to/assets/thumb/630f3ff3526d171fc728abd342ea8da3-thumbnail.jpg" group-title="Combat Sports",UFC Fight Night: Muhammad vs. Bonfim (05:00 ~ 13:00)
+https://embedindia.st/embed/ufc-fight-night-muhammad-vs-bonfim
+#EXTINF:-1 tvg-logo="https://api.ppv.to/assets/thumb/0538ffe471086a9d189adacf591c83d7-thumbnail.jpg" group-title="Football",Mexico vs. South Africa (03:00 ~ 05:30)
+https://embedindia.st/embed/wc/2026-06-11/mex-rsa
+#EXTINF:-1 tvg-logo="https://api.ppv.to/assets/thumb/ecca83b07fb621777f164edd1aa1f3b3-thumbnail.jpg" group-title="Motorsports",Monaco Grand Prix - Practice 3 (18:30 ~ 20:30)
+https://embedindia.st/embed/f1/2026/monaco/fp3
+#EXTINF:-1 tvg-logo="https://api.ppv.to/assets/thumb/6c49d65ae8d4a13f0627fb2b18528064-thumbnail.jpg" group-title="Tennis",Roland-Garros: TNT Sports 1
+https://embedindia.st/embed/roland-garros-tnt-sports-1
+#EXTINF:-1 tvg-logo="https://thumbs.poocloud.in/southpark/preview.jpg" group-title="24/7 Streams",24/7 South Park
+https://embedindia.st/embed/247-south-park`;
+        }
+    </script>
+</body>
+</html>
+
+
